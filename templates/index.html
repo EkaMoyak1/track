@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Путь к успеху</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+<header>
+    <div class="header-container">
+        <img src="{{ url_for('static', filename='img/Profile_banner.png') }}" alt="Баннер" class="header-banner">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Логотип" class="logo">
+        </div>
+        <div class="navigator">
+            <h6>Путь к успеху</h6>
+            <nav>
+                <a href="{{ url_for('index') }}">Главная</a>
+                <a href="{{ url_for('spisok') }}">Список детей</a>
+                <a href="{{ url_for('events') }}">Список конкурсов</a>
+                <a href="{{ url_for('karta') }}">Карта маршрута</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<div class="main-content">
+    <div class="blocks-container">
+        <a class="link-block" href="{{ url_for('spisok') }}">
+            <img src="static/img/f1.png" alt="Описание изображения" class="block-image"/>
+            Список детей
+        </a>
+        <a class="link-block" href="{{ url_for('events') }}">
+            <img src="static/img/img2.jpg" alt="Описание изображения" class="block-image"/>
+            Конкурсы
+        </a>
+        <a class="link-block" href="{{ url_for('karta') }}">
+            <img src="static/img/img3.jpg" alt="Описание изображения" class="block-image"/>
+            Карта марщрута
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

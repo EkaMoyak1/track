@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Путь к успеху</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        #progress {
+                    width: 100%;
+                    background-color: #f3f3f3;
+                    border: 1px solid #ccc;
+                    height: 30px;
+                    display: none;
+        }
+        #progress-bar {
+            width: 0;
+            height: 100%;
+            background-color: #4caf50;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<header>
+    <div class="header-container">
+        <img src="{{ url_for('static', filename='img/Profile_banner.png') }}" alt="Баннер" class="header-banner">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Логотип" class="logo">
+        </div>
+        <div class="navigator">
+            <h6>Путь к успеху</h6>
+            <nav>
+                <a href="{{ url_for('index') }}">Главная</a>
+                <a href="{{ url_for('spisok') }}">Список детей</a>
+                <a href="{{ url_for('events') }}">Список конкурсов</a>
+                <a href="{{ url_for('karta') }}">Карта маршрута</a>
+                <a href="{{ url_for('add_data_entry', child_id=child[0]) }}">Добавить участие в конкурсе</a>
+            </nav>
+        </div>
+    </div>
+
+</header>
+
+<body>
+    <h4>Карта маршрута участия на конкурсах</h4>
+    <h2>{{ child[1] }}</h2> <!-- Предполагается, что FIO находится на втором месте в кортежах -->
+
+    <div class="t-container">
+        {% for record in data %}
+            <div class="flex-container" style="display: flex;  width: 100%;">
+                 <div class="left-div" style="flex: 1; display: flex; position: relative; align-items: center; justify-content: center;">
+                        <div class="t1107__imgwrapper t-align_center" style="flex: 1; position: relative; display: flex; justify-content: center; align-items: center;">
+                            <strong><br></strong>
+                        </div>
+                        <div class="t1107__imgwrapper t-align_center" style="flex: 1; position: relative; display: flex; justify-content: center; align-items: center;">
+                            <img class="t1107__img t-margin_auto t-img"
+                                 src="{{ url_for('static', filename='img/Rectangle 3.png') }}"
+                                 imgfield="li_img__6386951860020_l1" style="max-width:250px;" alt="">
+
+                            <div class="t1107__textwrapper t-align_center"
+                                    style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 70%; max-width: 200px; text-align: center;">
+                                 <div class="t1107__uptitle t-uptitle t-uptitle_md" field="li_subtitle__6386951860020" style="font-size: 14px; color: white">
+                                    <strong>Подача заявок:<br>{{ record[6] }}</strong>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="t1107__arrow t-align_center">
+                            <img class="t-divider t-divider__arrow t1107__arrow"
+                                 src="{{ url_for('static', filename='img/Arrow 2.png') }}"
+                                 imgfield="li_img__6386951860020_l11" style="max-width:100px;" alt="">
+                        </div>
+
+
+                </div>
+
+                 <div class="t1107__imgwrapper t-align_center" style="flex: 1; position: relative; display: flex; justify-content: center; align-items: center;">
+                    <img class="t1107__img t-margin_auto t-img"
+                         src="{{ url_for('static', filename='img/block_1.png') }}"
+                         imgfield="li_img__6386951860020" style="max-width:500px;" alt="">
+
+                    <div class="t1107__textwrapper t-align_center"
+                            style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 70%; max-width: 600px; text-align: center;">
+                         <div class="t1107__uptitle t-uptitle t-uptitle_md" field="li_subtitle__6386951860020" style="font-size: 14px; color: white">
+                            <strong>{{ record[4] }}<br>{{ record[7] }}</strong>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="right-div" style="flex: 1; display: flex; position: relative; align-items: center; justify-content: center;">
+                     <div class="t1107__imgwrapper t-align_center" style="flex: 1; position: relative; display: flex; justify-content: center; align-items: center;">
+                            <div class="t1107__arrow t-align_center">
+                                <img class="t-divider t-divider__arrow t1107__arrow"
+                                     src="{{ url_for('static', filename='img/Arrow 4.png') }}"
+                                     imgfield="li_img__6386951860020_l21" style="max-width:150px;" alt="">
+                            </div>
+                     </div>
+                     <div class="t1107__imgwrapper t-align_center" style="flex: 1; position: relative; display: flex; justify-content: center; align-items: center;">
+                            <img class="t1107__img t-margin_auto t-img"
+                                 src="{{ url_for('static', filename='img/Rectangle 3.png') }}"
+                                 imgfield="li_img__6386951860020_l1" style="max-width:250px;" alt="">
+
+                            <div class="t1107__textwrapper t-align_center"
+                                    style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 70%; max-width: 200px; text-align: center;">
+                                 <div class="t1107__uptitle t-uptitle t-uptitle_md" field="li_subtitle__6386951860020" style="font-size: 14px; color: white">
+                                    <strong>{{ record[3] }}</strong>
+                                </div>
+                            </div>
+
+                     </div>
+
+                     <div class="right-div-part2" style="flex: 1; text-align: center;">
+                        <!-- Содержимое второй части правого блока -- это иконки карандаш и мусорка-->
+                        <a href="#" class="edit-button" data-record="{{ record[0] }}" child_id="{{ child[0] }}" data-child="{{ child[1] }}" def-doc="{{ record[3] }}" data-default="{{ record[2] }}" datafile="{{ record[8] }}" dataorigname="{{ record[9] }}" onclick="openModal(this)">
+                            <img class="t1107__img_1 t-margin_auto t-img" src="{{ url_for('static', filename='img/pen.png') }}" style="max-width:30px;" alt="">
+                        </a>
+                        <a href="#" class="delete-button" data-record="{{ record[0] }}" onclick="deleteRecord(this)">
+                            <img class="t1107__img_1 t-margin_auto t-img" src="{{ url_for('static', filename='img/del.png') }}" style="max-width:30px;" alt="Удаление">
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="t1107__arrow t-align_center">
+                <img class="t-divider t-divider__arrow t1107__arrow"
+                     src="{{ url_for('static', filename='img/Arrow 1.png') }}"
+                     imgfield="li_img__6386951860020_1" style="max-width:800px;" alt="">
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+    <!-- Модальное окно -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <form id="editForm" action="/save_data" method="post" enctype="multipart/form-data">
+                <label>ФИО:</label>
+                <input type="hidden" id="record-id" name="record-id" readonly>
+                <input type="hidden" id="id_spisok" name="id_spisok" readonly>
+                <span id="fio"></span>
+                <br><br>
+
+                <label for="competition">Конкурс:</label>
+                <select name="id_events_table" id="competition" required>
+                    <!-- Список будет заполнен через JavaScript -->
+                </select>
+                <br><br>
+
+                <label for="doc_type">Результат:</label>
+                <select name="id_doc_type" id="doc_type" required>
+                </select>
+                <br><br>
+
+                <label for="fileInput">Файл:</label>
+                <input type="file" name="fileInput" id="fileInput" accept=".txt,.pdf,.doc,.docx">
+                <input type="hidden" name="saved_file_name" id="saved_file_name">
+                <div id="file-name-display" style="display: inline-block;"></div> <!-- Элемент для отображения имени файла -->
+                <button id="remove-file-btn" style="display: none; margin-left: 10px;" onclick="removeFile()">✖</button> <!-- Кнопка для удаления -->
+
+                <div id="progress">
+                    <div id="progress-bar"></div>
+                </div>
+                <div id="message"></div>
+                <br><br>
+
+
+                <input type="submit" value="Сохранить">
+<!--                <button type="button" onclick="deleteRecord()">Удалить</button>-->
+
+            </form>
+        </div>
+    </div>
+
+    <script>
+
+        const events = [
+            {% for event in events %}
+                    { id: {{ event[0] }}, name: "{{ event[1] | e }}" }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+        const docs = [
+            {% for doc in docs %}
+                    { name: "{{ doc | e }}" }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        // Генерация уникального имени файла
+        document.getElementById('saved_file_name').value = 'file_' + Date.now() + '_' + Math.floor(Math.random() * 1000); // без расширения
+
+        document.getElementById('fileInput').addEventListener('change', function() {
+        var formData = new FormData(document.getElementById('editForm'));
+
+        // Показать прогресс-бар
+        document.getElementById('progress').style.display = 'block';
+        document.getElementById('progress-bar').style.width = '0%';
+
+        $.ajax({
+            xhr: function() {
+                var xhr = new window.XMLHttpRequest();
+                xhr.upload.addEventListener("progress", function(evt) {
+                    if (evt.lengthComputable) {
+                        var percentComplete = evt.loaded / evt.total * 100;
+                        document.getElementById('progress-bar').style.width = percentComplete + '%';
+                    }
+                }, false);
+                return xhr;
+            },
+            type: "POST",
+            url: "{{ url_for('upload_file') }}",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                document.getElementById('message').textContent = "Файл загружен успешно!";
+                document.getElementById('file-name-display').textContent = document.getElementById('fileInput').files[0].name;
+                document.getElementById('remove-file-btn').style.display = 'inline-block';
+
+                // Сохраняем имя файла в скрытом поле
+                document.getElementById('saved_file_name').value = response.file_name; // например, response.file_name — имя файла с сервера
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                document.getElementById('message').textContent = "Ошибка загрузки файла.";
+            }
+        });
+    });
+
+        $(document).ready(function() {
+            // Заполнение списка конкурсов и типов документов
+            const competitionSelect = $('#competition');
+            const docTypeSelect = $('#doc_type');
+
+            events.forEach(event => {
+                competitionSelect.append(new Option(event.name, event.id));
+            });
+
+            docs.forEach(doc => {
+                docTypeSelect.append(new Option(doc.name, doc.name));
+            });
+
+            $('#editForm').on('submit', function(event) {
+                event.preventDefault(); // Предотвращаем обычную отправку формы
+
+                // Отправляем данные формы через AJAX
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('action'), // URL, указанный в action формы
+                    data: $(this).serialize(), // Сериализуем данные формы
+                    success: function(response) {
+                        // Закрываем модальное окно
+                        closeModal();
+                        // Здесь можно обработать ответ от сервера (response) если нужно
+                        console.log(response);
+                        // Возможно, вам потребуется обновить часть страницы без перезагрузки
+                    },
+                    error: function(xhr, status, error) {
+                        // Обработка ошибок, если необходимо
+                        alert('Произошла ошибка: ' + error);
+                    }
+                });
+            });
+        });
+
+        // Очистка и заполнение списка событий
+        function populateCompetitionSelect(events, defaultEventId) {
+            const competitionSelect = document.getElementById('competition');
+            competitionSelect.innerHTML = ''; // Очистка текущих опций
+
+            events.forEach(event => {
+                const option = document.createElement('option');
+                option.value = event.id;
+                option.textContent = event.name;
+                competitionSelect.appendChild(option);
+
+                // Установка значения по умолчанию
+                if (event.id == defaultEventId) {
+                    option.selected = true; // Устанавливаем опцию как выбранную
+                }
+            });
+        }
+
+        // Очистка и заполнение списка документов
+        function populateDocTypeSelect(docs, def_doc) {
+            const doc_typeSelect = document.getElementById('doc_type');
+            doc_typeSelect.innerHTML = ''; // Очистка текущих опций
+
+            docs.forEach(doc => {
+                const option_d = document.createElement('option');
+                option_d.value = doc.name;
+                option_d.textContent = doc.name;
+                doc_typeSelect.appendChild(option_d);
+
+                // Установка значения по умолчанию
+                if (doc.name == def_doc) {
+                    option_d.selected = true; // Устанавливаем опцию как выбранную
+                }
+            });
+        }
+
+
+
+        function openModal(element) {
+            var recordId = element.getAttribute('data-record');
+            var id_spisok = element.getAttribute('child_id');
+            var fio = element.getAttribute('data-child');
+            var defaultEventId = element.getAttribute('data-default');
+            var def_doc = element.getAttribute('def-doc');
+            var dataorigname = element.getAttribute('dataorigname');
+            var datafile = element.getAttribute('datafile');
+
+
+            // Заполнение полей модального окна
+            document.getElementById('record-id').value = recordId;
+            document.getElementById('id_spisok').value = id_spisok;
+            document.getElementById('fio').textContent = fio;
+            document.getElementById('fileInput').textContent = dataorigname;
+
+            // Устанавливаем выбранные значения для селектов
+            $('#competition').val(defaultEventId);
+            $('#doc_type').val(def_doc);
+
+
+            var fileNameDisplay = document.getElementById('file-name-display');
+            var removeFileBtn = document.getElementById('remove-file-btn');
+
+            if (datafile) {
+                fileNameDisplay.textContent = "Загруженный файл: " + datafile; // Отображаем имя файла
+                removeFileBtn.style.display = 'inline-block'; // Показываем кнопку удаления
+            } else {
+                fileNameDisplay.textContent = ""; // Очищаем, если datafile пустой
+                removeFileBtn.style.display = 'none'; // Скрываем кнопку удаления
+            }
+
+            // Открываем модальное окно
+            document.getElementById('myModal').style.display = "block";
+        }
+
+        function removeFile() {
+        // Очищаем имя файла и скрываем кнопку удаления
+        document.getElementById('file-name-display').textContent = "";
+        document.getElementById('remove-file-btn').style.display = 'none';
+
+        // Можно также сбросить значение скрытого поля saved_file_name, если нужно
+        document.getElementById('saved_file_name').value = "";
+        }
+
+        function closeModal() {
+            document.getElementById('myModal').style.display = "none";
+             location.reload(); // Обновление страницы
+        }
+
+        // Закрытие модального окна при клике вне его
+        window.onclick = function(event) {
+            var modal = document.getElementById('myModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+
+        function deleteRecord(element) {
+             const recordId = element.getAttribute('data-record'); // Получаем значение из атрибута data-record
+
+            if (confirm("Вы уверены, что хотите удалить эту запись?")) {
+                const url = '/delete_data'; // Формируем URL с параметрами
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `record_id=${recordId}` // Используем обратные кавычки для интерполяции
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Сетевая ошибка');
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    //alert(data); // Показываем ответ сервера
+                    closeModal(); // Закрываем модальное окно
+                    // Здесь можно добавить логику для обновления интерфейса, если это необходимо
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Произошла ошибка при удалении записи.');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

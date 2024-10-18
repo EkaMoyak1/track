@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Путь к успеху</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+
+    </style>
+</head>
+
+<header>
+    <div class="header-container">
+        <img src="{{ url_for('static', filename='img/Profile_banner.png') }}" alt="Баннер" class="header-banner">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Логотип" class="logo">
+        </div>
+        <div class="navigator">
+            <h6>Путь к успеху</h6>
+            <nav>
+                <a href="{{ url_for('index') }}">Главная</a>
+                <a href="{{ url_for('spisok') }}">Список детей</a>
+                <a href="{{ url_for('events') }}">Список конкурсов</a>
+                <a href="{{ url_for('karta') }}">Карта маршрута</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<body>
+    <h4>Раскрытие потенциала: программы для одаренных</h4>
+    <div class="container-children-profile">
+        {% for record in children %}
+            <div class="record-container-children-profile">
+                <div class="record-children-profile">
+                    <div class="centered-link">
+                        <a href="{{ url_for('child_profile', child_id=record[2]) }}">
+                            <strong style="color: #FF0406;">{{ record[0] }}</strong>
+                        </a>
+                    </div>
+                    <div class="container_arrow">
+                        <img src="{{ url_for('static', filename='img/Group 4.png') }}">
+                    </div>
+                    <div class="items-container-profile">
+                    {% for event in record[1] %}
+                        <div class="item-children-profile">
+                            <div class="img-wrapper t-align_center">
+                                <img src="{{ url_for('static', filename='img/Rectangle 9.png') }}" style="max-width:400px;" alt="">
+                                <div class="text-wrapper t-align_center">
+                                    <strong>{{ event[0] }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+        {% endfor %}
+    </div>
+    <br>
+</body>
+</html>

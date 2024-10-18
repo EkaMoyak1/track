@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Путь к успеху</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+<header>
+    <div class="header-container">
+        <img src="{{ url_for('static', filename='img/Profile_banner.png') }}" alt="Баннер" class="header-banner">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Логотип" class="logo">
+        </div>
+        <div class="navigator">
+            <h6>Путь к успеху</h6>
+            <nav>
+                <a href="{{ url_for('index') }}">Главная</a>
+                <a href="{{ url_for('spisok') }}">Список детей</a>
+                <a href="{{ url_for('events') }}">Список конкурсов</a>
+                <a href="{{ url_for('karta') }}">Карта маршрута</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+    <h3 style="text-align: center; font-size: 25px">Изменение данных по ребенку</h3>
+    <form method="POST">
+
+        <h2>{{child[1]}}</h2>
+        <br>
+
+        <label for="date_bd">Дата рождения:</label>
+        <input type="date" id="date_bd" name="date_bd" value = "{{child[2]}}" required><br>
+
+        <label for="age">Возраст:</label>
+        <input type="number" id="age" name="age" value = "{{child[3]}}"  required><br>
+        <br>
+        <label for="napr">Направление:</label>
+        <select name="id_napr_table" id="napr" required>
+            {% for napr_zap in napr_table %}
+                <option value="{{ napr_zap[0] }}" {% if napr_zap[0] == child[4] %}selected{% endif %}>{{ napr_zap[1] }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <label for="studio">Студия:</label>
+<!--        <input type="number" id="studio" name="studio"  value = "{{child[5]}}"  required><br>-->
+        <select name="id_studio" id="studio" required>
+            {% for studio_zap in spr_studya %}
+                <option value="{{ studio_zap[0] }}" {% if studio_zap[0] == child[5] %}selected{% endif %}>{{ studio_zap[1] }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <label for="teacher">Педагог:</label>
+<!--        <input type="number" id="pedagog" name="pedagog" value = "{{child[6]}}"  required><br>-->
+        <select name="id_teacher" id="teacher" required>
+            {% for teach in teacher %}
+                <option value="{{ teach[0] }}" {% if teach[0] == child[6] %}selected{% endif %}>{{ teach[1] }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+
+        <button class="btn" type="submit">Сохранить</button>
+    </form>
+</body>
+</html>
