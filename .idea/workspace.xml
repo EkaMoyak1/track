@@ -5,81 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="70364b84-829a-4296-9f41-64e8f0f50cb9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/Git_track.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/1.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/2.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SQL.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app_29_09.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app_bad.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/create_bd.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/date_source.db" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/flask_app.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen1.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/generate_html.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/load_data.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/start.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/123.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/Arrow 1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/Arrow 2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/Arrow 3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/Arrow 4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/Group 4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/Profile_banner.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/Rectangle 1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/Rectangle 2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/Rectangle 3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/Rectangle 9.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/block_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/child.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/del.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/delete.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/f1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/img1.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/img2.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/img3.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/logo.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/img/pen.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/load/file_1728818953576_872.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/load/file_1728819472593_676.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/load/file_1728820192696_425.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/load/file_1728820209797_87.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/load/file_1728821767953_186.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/load/file_1728823694754_262.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/load/file_1728823711583_394.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/load/file_1728823805912_817.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/load/file_1728823887394_25.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/load/file_1728825038370_473.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/load/file_1728825069268_125.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/load/file_1728825069268_125.pdf.JPG" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/load/file_1728825206805_635.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/load/file_1728825241952_616.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/load/file_1728825309350_578.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/styles.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/styles_bak.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/add_child.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/child_profile.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/child_profile_13.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/child_profile_13_1.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/child_profile_до крестика.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/children_profiles.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/children_profiles_bak.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/edit_child.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/edit_field.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/edit_field_13.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/events.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/spisok.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/your_database.db" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Удаление таблицы.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/тест.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Git_track.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Git_track.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,23 +17,24 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 0
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
   <component name="ProjectId" id="2nbpalNyPq3dJWtZ5n7oUHogB1x" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "D:/Python Project/Git_track"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Python Project/Git_track&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\Python Project\Git_track" />
