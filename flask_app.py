@@ -1,4 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, flash, jsonify
+from flask import session
+
 import sqlite3
 import load_data
 import os
@@ -21,10 +23,45 @@ docs =[' ', 'Сертификат участника',
 
 # Функция для получения данных о конкретном ребенке по ID
 
+app.secret_key = os.urandom(24)
+
+@app.before_request
+def before_request():
+    if 'username' not in session and request.endpoint not in ['login', 'static']:
+        return redirect(url_for('login'))
+
+@app.route('/protected')
+def protected():
+    if 'username' in session:
+        return 'Вы вошли как ' + session['username']
+    return redirect(url_for('login'))
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('login'))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        # Здесь должна быть проверка логина и пароля
+        # Например, сравнить с данными в базе данных
+        if check_user_credentials(username, password):
+            session['username'] = username
+            return redirect(url_for('index'))
+        else:
+            flash('Неверный логин или пароль!')
+            return redirect(url_for('login'))
+
+    return render_template('login.html')
+
 
 @app.route('/')
 def index():
-    children = get_children()
+    children = get_children(session['username'])
     return render_template('index.html', children=children)
 
 @app.route('/load')
@@ -34,12 +71,16 @@ def load_data_route():
 
 @app.route('/spisok')
 def spisok():
-    children = get_children()  # Получаем список детей из базы данных
-    return render_template('spisok.html', children=children, show_load_button = False)
+    if session['username'] == 'admin':
+        show_load_button = True
+    else:
+        show_load_button = False
+    children = get_children(session['username'])  # Получаем список детей из базы данных
+    return render_template('spisok.html', children=children, show_load_button=show_load_button)
 
 @app.route('/karta')
 def karta():
-    children = (get_children())  # Получаем список детей из базы данных
+    children = (get_children(session['username'], True))  # Получаем список детей из базы данных
     table_res = []
     for child in children:
         ev = get_data_by_id_spisok_kor(child[0])
@@ -75,7 +116,7 @@ def add_data_entry():
 
     if request.method == 'GET':
         # Получите данные детей и конкурсов из БД
-        children = get_children()  # Ваша функция для получения детей
+        children = get_children(session['username'])  # Ваша функция для получения детей
         events = get_events()  # Ваша функция для получения конкурсов
         return render_template('edit_field.html', child = child, children=children, events=events, docs=docs, id_child=child_id)
        # Обработка POST запроса здесь
@@ -134,7 +175,7 @@ def add_child():
     if request.method == 'POST':
         add_in_spisok(request)
 
-        children = get_children()  # Получаем список детей из базы данных
+        children = get_children(session['username'])  # Получаем список детей из базы данных
         # return render_template('spisok.html', children=children, show_load_button=False)
         return redirect(url_for('spisok'))
     napr_table = get_napr()
@@ -149,7 +190,7 @@ def edit_child(child_id):
     if request.method == 'POST':
         # fio = request.form['fio']
         edit_in_spisok(request, child_id)
-        children = get_children()  # Получаем список детей из базы данных
+        children = get_children(session['username'])  # Получаем список детей из базы данных
         # return render_template('spisok.html', children=children, show_load_button=False)
         return redirect(url_for('spisok'))
 
@@ -165,16 +206,24 @@ def edit_child(child_id):
 def delete_child(child_id):
 
     delete_in_spisok(child_id)
-    children = get_children()
+    children = get_children(session['username'])
     return render_template('spisok.html', children=children, show_load_button=False)
+
+@app.route('/add_konkurs', methods=['GET', 'POST'])
+def add_konkurs():
+    if request.method == 'POST':
+        add_in_event(request)
+
+        events_t = get_events()
+        return redirect(url_for('events'))
+    events_t = get_events()
+    return render_template('add_event.html')
+
+
 
 
 UPLOAD_FOLDER = 'static/load/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-
-
-
 
 
 if __name__ == '__main__':

@@ -414,3 +414,23 @@ a {
 .arrow_1 {
     display: inline-block;
 }
+
+.filter-container {
+    display: flex; /* Используем flexbox для размещения полей ввода в строку */
+    justify-content: flex-end; /* Размещаем элементы вправо */
+    gap: 10px; /* Добавляем промежуток между полями ввода */
+    padding: 10px; /* Добавляем внутренний отступ */
+}
+
+.filter-container input {
+    width: 150px; /* Устанавливаем фиксированную ширину для всех полей ввода */
+    padding: 5px; /* Добавляем внутренний отступ для лучшего восприятия */
+    border: 1px solid #ccc; /* Добавляем границу */
+    border-radius: 5px; /* Закругляем углы */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Добавляем легкую тень */
+}
+
+.filter-container input::placeholder {
+    color: #aaa; /* Цвет текста плейсхолдера */
+}
+

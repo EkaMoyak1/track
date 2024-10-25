@@ -2,6 +2,7 @@ import pandas as pd
 import sqlite3
 import os
 import create_bd
+import  SQL
 
 def load_data():
 
@@ -66,9 +67,9 @@ def load_data():
 
         # Вставка данных в таблицу events_table
         cursor_db.execute('''
-                INSERT INTO teacher (FIO)
-                VALUES (?)
-            ''', row_data)
+                INSERT INTO teacher (FIO, password)
+                VALUES (?, ?)
+            ''', (row_data[0], 'cdo2024'))
 
     # Сохранение изменений в базе данных
     db_lp.commit()
@@ -117,16 +118,19 @@ def load_data():
         cursor_db.execute('SELECT * FROM spr_studya')
         data = cursor_db.fetchall()
         studio = '0'
+        print(row_data)
         for d in data:
-            if d[1] == row_data[4]:
+            if d[1] == str(row_data[4]):
                 studio =d[0]
                 break
 
         cursor_db.execute('SELECT * FROM teacher')
         data = cursor_db.fetchall()
+        # print(data)
         teacher = '0'
         for d in data:
-            if d[1].strip() == row_data[5].strip():
+            print(row_data[5])
+            if d[1].strip() == str(row_data[5]).strip():
                 teacher = d[0]
                 break
 
@@ -158,6 +162,8 @@ def load_data():
 
     # Сохранение изменений в базе данных
     db_lp.commit()
+
+    SQL.add_super_user()
 
     # Закрытие соединения с базой данных
     cursor_db.close()

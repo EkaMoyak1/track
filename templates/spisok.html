@@ -22,9 +22,66 @@
                 <a href="{{ url_for('spisok') }}">Список детей</a>
                 <a href="{{ url_for('events') }}">Список конкурсов</a>
                 <a href="{{ url_for('karta') }}">Карта маршрута</a>
+                <a href="{{ url_for('logout') }}" class="logout-button">Выйти</a> <!-- Кнопка Выйти -->
             </nav>
         </div>
     </div>
+    <script>
+        function filterTable() {
+            // Получаем значения фильтров
+            const filterФИО = document.getElementById("filterFIO").value.toLowerCase();
+            const filterНаправление = document.getElementById("filterNapravlenie").value.toLowerCase();
+            const filterСтудия = document.getElementById("filterStudio").value.toLowerCase();
+            const filterПедагог = document.getElementById("filterTeacher").value.toLowerCase();
+
+            const table = document.getElementById("childrenTable");
+            const tr = table.getElementsByTagName("tr");
+
+            // Проходим по всем строкам таблицы (кроме заголовка)
+            for (let i = 1; i < tr.length; i++) {
+                const tdФИО = tr[i].getElementsByTagName("td")[1];
+                const tdНаправление = tr[i].getElementsByTagName("td")[4];
+                const tdСтудия = tr[i].getElementsByTagName("td")[5];
+                const tdПедагог = tr[i].getElementsByTagName("td")[6];
+
+                // Скрываем строку, если ни одно из полей не соответствует фильтрам
+                if (
+                    (tdФИО && tdФИО.textContent.toLowerCase().indexOf(filterФИО) > -1) &&
+                    (tdНаправление && tdНаправление.textContent.toLowerCase().indexOf(filterНаправление) > -1) &&
+                    (tdСтудия && tdСтудия.textContent.toLowerCase().indexOf(filterСтудия) > -1) &&
+                    (tdПедагог && tdПедагог.textContent.toLowerCase().indexOf(filterПедагог) > -1)
+                ) {
+                    tr[i].style.display = ""; // Показываем строку
+                } else {
+                    tr[i].style.display = "none"; // Скрываем строку
+                }
+            }
+        }
+
+        function sortTable(columnIndex) {
+            const table = document.getElementById("childrenTable");
+            const tbody = table.getElementsByTagName("tbody")[0];
+            const rows = Array.from(tbody.getElementsByTagName("tr"));
+
+            // Определяем, нужно ли сортировать по возрастанию или убыванию
+            const isAscending = !tbody.getAttribute("data-order") || tbody.getAttribute("data-order") === "desc";
+            tbody.setAttribute("data-order", isAscending ? "asc" : "desc");
+
+            // Сортируем строки
+            rows.sort((a, b) => {
+                const cellA = a.getElementsByTagName("td")[columnIndex].textContent.trim();
+                const cellB = b.getElementsByTagName("td")[columnIndex].textContent.trim();
+
+                // Сравниваем значения
+                if (cellA < cellB) return isAscending ? -1 : 1;
+                if (cellA > cellB) return isAscending ? 1 : -1;
+                return 0;
+            });
+
+            // Очищаем tbody и добавляем отсортированные строки
+            rows.forEach(row => tbody.appendChild(row));
+        }
+    </script>
 </header>
 
 <body>
@@ -37,16 +94,25 @@
     <a href="{{ url_for('add_child', child_id='') }}" class="btn">
         <i class="fas fa-plus"></i> Добавить ребенка
     </a>
-    <table>
+
+    <!-- Форма фильтрации -->
+    <div class="filter-container">
+        <input type="text" id="filterFIO" oninput="filterTable()" placeholder="ФИ ребенка">
+        <input type="text" id="filterNapravlenie" oninput="filterTable()" placeholder="Направление">
+        <input type="text" id="filterStudio" oninput="filterTable()" placeholder="Студия">
+        <input type="text" id="filterTeacher" oninput="filterTable()" placeholder="Педагог">
+    </div>
+
+    <table id="childrenTable">
         <thead>
             <tr>
                 <th>№</th>
-                <th>ФИО</th>
+                <th  onclick="sortTable(1)">ФИО</th>
                 <th>Дата рождения</th>
-                <th>Возраст</th>
-                <th>Направление</th>
-                <th>Студия</th>
-                <th>Педагог</th>
+                <th  onclick="sortTable(3)">Возраст</th>
+                <th  onclick="sortTable(4)">Направление</th>
+                <th onclick="sortTable(5)">Студия</th>
+                <th onclick="sortTable(6)">Педагог</th>
                 <th>Действия</th>
             </tr>
         </thead>

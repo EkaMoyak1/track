@@ -1,4 +1,5 @@
 import sqlite3
+import SQL
 
 def create_tables():
     db_lp = sqlite3.connect('date_source.db')
@@ -58,7 +59,8 @@ def create_tables():
 
     sql_create = '''CREATE TABLE if NOT exists teacher(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    FIO TEXT NOT NULL
+                    FIO TEXT NOT NULL UNIQUE,
+                    password TEXT NOT NULL
                      );'''
 
     cursor_db.execute(sql_create)
@@ -67,5 +69,22 @@ def create_tables():
     cursor_db.close()
     db_lp.close()
 
+
+
+def show_tbl(table):
+    db_lp = sqlite3.connect('date_source.db')
+    cursor_db = db_lp.cursor()
+    cursor_db.execute('SELECT * from '+table)
+
+    # Сохранение изменений в базе данных
+    db_lp.commit()
+    tbl = cursor_db.fetchall()
+    cursor_db.close()
+    db_lp.close()
+    print(tbl)
+
 if __name__ == '__main__':
-    create_tables()
+    # create_tables()
+    SQL.add_super_user()
+    show_tbl('teacher')
+    # show_tbl('spisok')

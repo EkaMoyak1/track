@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Путь к успеху</title>
+<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">-->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body>
 
 <header>
     <div class="header-container">
@@ -21,28 +22,27 @@
                 <a href="{{ url_for('spisok') }}">Список детей</a>
                 <a href="{{ url_for('events') }}">Список конкурсов</a>
                 <a href="{{ url_for('karta') }}">Карта маршрута</a>
-                <a href="{{ url_for('logout') }}" class="logout-button">Выйти</a> <!-- Кнопка Выйти -->
             </nav>
         </div>
     </div>
 </header>
-
-<div class="main-content">
-    <div class="blocks-container">
-        <a class="link-block" href="{{ url_for('spisok') }}">
-            <img src="static/img/f1.png" alt="Описание изображения" class="block-image"/>
-            Список детей
-        </a>
-        <a class="link-block" href="{{ url_for('events') }}">
-            <img src="static/img/img2.jpg" alt="Описание изображения" class="block-image"/>
-            Конкурсы
-        </a>
-        <a class="link-block" href="{{ url_for('karta') }}">
-            <img src="static/img/img3.jpg" alt="Описание изображения" class="block-image"/>
-            Карта маршрута
-        </a>
-    </div>
-</div>
-
+<body>
+    <h2>Вход в систему</h2>
+    <form method="POST" action="{{ url_for('login') }}">
+        <label for="username">Логин:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        <label for="password">Пароль:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        <input type="submit" value="Войти">
+    </form>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
 </body>
 </html>

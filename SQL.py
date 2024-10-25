@@ -2,6 +2,16 @@ import sqlite3
 
 from flask import flash
 
+def check_user_credentials(username, password):
+    # Ваша логика для проверки пользователя в базе данных
+    # Например:
+    print(username, password)
+    conn = sqlite3.connect('date_source.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM teacher WHERE fio=? AND password=?', (username, password))
+    user = cursor.fetchone()
+    conn.close()
+    return user is not None
 
 def get_child_by_id(child_id):
     db_lp = sqlite3.connect('date_source.db')
@@ -61,19 +71,38 @@ def get_events():
     return events_table
 
 
-def get_children():
+def get_children(user, filter=False):
     db_lp = sqlite3.connect('date_source.db')
     cursor_db = db_lp.cursor()
     # cursor_db.execute("SELECT * FROM spisok  ORDER BY fio")
-    cursor_db.execute('''
-    SELECT spisok.id, spisok.fio as fio, spisok.date_bd, spisok.age, spr_napravlenie.name, spr_studya.name, teacher.fio as pedagog 
-    FROM spisok  
-    JOIN  spr_napravlenie ON spisok.napravlenie = spr_napravlenie.id
-    JOIN  spr_studya ON spisok.studio = spr_studya.id
-    JOIN  teacher ON spisok.pedagog = teacher.id
+    if user == 'admin':
+        text = '''
+        SELECT spisok.id, spisok.fio as fio, spisok.date_bd, spisok.age, spr_napravlenie.name, spr_studya.name, teacher.fio as pedagog 
+        FROM spisok  
+        left JOIN  spr_napravlenie ON spisok.napravlenie = spr_napravlenie.id
+        left JOIN  spr_studya ON spisok.studio = spr_studya.id
+        left JOIN  teacher ON spisok.pedagog = teacher.id
+        '''
+        if filter:
+            text += ' where spisok.id in (select id_spisok from data_table group by id_spisok) '
 
-    ORDER BY fio
-    ''')
+        cursor_db.execute(text + '''
+        ORDER BY fio
+        ''')
+    else:
+        text = '''
+                SELECT spisok.id, spisok.fio as fio, spisok.date_bd, spisok.age, spr_napravlenie.name, spr_studya.name, teacher.fio as pedagog 
+                FROM spisok  
+                left JOIN  spr_napravlenie ON spisok.napravlenie = spr_napravlenie.id
+                left JOIN  spr_studya ON spisok.studio = spr_studya.id
+                JOIN  teacher ON spisok.pedagog = teacher.id
+                WHERE teacher.fio = ?
+                '''
+        if filter:
+            text += ' and  spisok.id in (select id_spisok from data_table group by id_spisok) '
+
+        cursor_db.execute( text + '''  
+             ORDER BY fio''', (user,))
     children = cursor_db.fetchall()
     cursor_db.close()
     db_lp.close()
@@ -104,7 +133,7 @@ def get_siudio():
 def get_teacher():
     db_lp = sqlite3.connect('date_source.db')
     cursor_db = db_lp.cursor()
-    cursor_db.execute("SELECT * FROM teacher")
+    cursor_db.execute("SELECT * FROM teacher where fio <> 'admin'")
 
     teacher = cursor_db.fetchall()
     cursor_db.close()
@@ -134,7 +163,7 @@ def save_in_date_table(request):
         cursor_db.close()
         db_lp.close()
         print('Запись успешно добавлена')
-        flash('Запись успешно добавлена', 'success')
+        # flash('Запись успешно добавлена', 'success')
     except KeyError as e:
         print('error')
         flash(f'Ошибка: отсутствует поле {e}', 'error')
@@ -203,6 +232,23 @@ def add_in_spisok(request):
     conn.close()
 
 
+def add_in_event(request):
+    name = request.form['name']
+    opisanie = request.form['opisanie']
+    srock = request.form['srock']
+    resultat_date = request.form['resultat_date']
+
+
+    # Логика добавления конкурса в базу данных
+    conn = sqlite3.connect('date_source.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+                INSERT INTO events_table (name, opisanie, srok_podachi_date, result_date)
+                VALUES (?, ?, ?, ?)
+            ''', (name, opisanie, srock, resultat_date))
+    conn.commit()
+    conn.close()
+
 def edit_in_spisok(request, child_id):
     date_bd = request.form['date_bd']
     age = request.form['age']
@@ -235,3 +281,15 @@ def delete_in_spisok(child_id):
     except KeyError as e:
         print('error')
         flash(f'Ошибка: отсутствует поле {e}', 'error')
+
+
+def add_super_user():
+    db_lp = sqlite3.connect('date_source.db')
+    cursor_db = db_lp.cursor()
+    cursor_db.execute('''
+                    INSERT INTO teacher (FIO, password)
+                    VALUES (?, ?)
+                ''', ('admin', 'cdomir2024'))
+
+    # Сохранение изменений в базе данных
+    db_lp.commit()
