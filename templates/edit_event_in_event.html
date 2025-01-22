@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Путь к успеху{% endblock %}
+
+{% block content %}
+
+    <h3 style="text-align: center; font-size: 25px">Изменение данных по конкурсу</h3>
+    <form class="form" method="POST">
+
+        <h2>Конкурс</h2>
+        <br>
+
+        <label name="name">Полное название конкурса:</label>
+        <input type="string" id="name" name="name" value = "{{event[1]}}" required style="width: 100%;" required><br>
+
+        <label for="opisanie">Короткое описание:</label>
+        <input type="string" id="opisanie" name="opisanie" value = "{{event[2]}}" required><br>
+
+        <label for="srok_podachi_date">Дата начала подачи заявки:</label>
+        <input type="date" id="srok_podachi_date" name="srok_podachi_date" value = "{{event[3]}}"  ><br>
+
+        <label for="result_date">Дата подведение итогов:</label>
+        <input type="date" id="result_date" name="result_date" value = "{{event[4]}}"  ><br>
+        <br>
+        <br><br>
+
+        <input type="submit" value="Сохранить">
+        <button type="button" class="cancel-button" onclick="history.back();">Отмена</button> <!-- Кнопка Отмена -->
+    </form>
+
+{% endblock %}

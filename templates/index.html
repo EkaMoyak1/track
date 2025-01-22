@@ -1,31 +1,11 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Путь к успеху</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
+<!-- index.html -->
+{% extends 'base.html' %}
 
-<header>
-    <div class="header-container">
-        <img src="{{ url_for('static', filename='img/Profile_banner.png') }}" alt="Баннер" class="header-banner">
-        <div class="logo-container">
-            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Логотип" class="logo">
-        </div>
-        <div class="navigator">
-            <h6>Путь к успеху</h6>
-            <nav>
-                <a href="{{ url_for('index') }}">Главная</a>
-                <a href="{{ url_for('spisok') }}">Список детей</a>
-                <a href="{{ url_for('events') }}">Список конкурсов</a>
-                <a href="{{ url_for('karta') }}">Карта маршрута</a>
-                <a href="{{ url_for('logout') }}" class="logout-button">Выйти</a> <!-- Кнопка Выйти -->
-            </nav>
-        </div>
-    </div>
-</header>
+{% block title %}Путь к успеху{% endblock %}
+
+{% block content %}
+
+
 
 <div class="main-content">
     <div class="blocks-container">
@@ -44,5 +24,4 @@
     </div>
 </div>
 
-</body>
-</html>
+{% endblock %}

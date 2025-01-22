@@ -1,50 +1,18 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Путь к успеху</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <style>
-        #progress {
-                    width: 100%;
-                    background-color: #f3f3f3;
-                    border: 1px solid #ccc;
-                    height: 30px;
-                    display: none;
-        }
-        #progress-bar {
-            width: 0;
-            height: 100%;
-            background-color: #4caf50;
-        }
-    </style>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
+{% extends 'base.html' %}
 
-<header>
-    <div class="header-container">
-        <img src="{{ url_for('static', filename='img/Profile_banner.png') }}" alt="Баннер" class="header-banner">
-        <div class="logo-container">
-            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Логотип" class="logo">
-        </div>
-        <div class="navigator">
-            <h6>Путь к успеху</h6>
-            <nav>
-                <a href="{{ url_for('index') }}">Главная</a>
-                <a href="{{ url_for('spisok') }}">Список детей</a>
-                <a href="{{ url_for('events') }}">Список конкурсов</a>
-                <a href="{{ url_for('karta') }}">Карта маршрута</a>
-                <a href="{{ url_for('add_data_entry', child_id=child[0]) }}">Добавить участие в конкурсе</a>
-            </nav>
-        </div>
-    </div>
+{% block title %}Путь к успеху{% endblock %}
 
-</header>
+{% block content %}
 
-<body>
+
+
     <h4>Карта маршрута участия на конкурсах</h4>
     <h2>{{ child[1] }}</h2> <!-- Предполагается, что FIO находится на втором месте в кортежах -->
+
+<!--    <-!&#45;&#45; Кнопка добавления элементов &ndash;&gt;-->
+    <div class="button-container">
+        <a href="{{ url_for('add_data_entry', child_id=child[7]) }}" class="add-button-plus">+</a>
+    </div>
 
     <div class="t-container">
         {% for record in data %}
@@ -122,7 +90,7 @@
 
                      <div class="right-div-part2" style="flex: 1; text-align: center;">
                         <!-- Содержимое второй части правого блока -- это иконки карандаш и мусорка-->
-                        <a href="#" class="edit-button" data-record="{{ record[0] }}" child_id="{{ child[0] }}" data-child="{{ child[1] }}" def-doc="{{ record[3] }}" data-default="{{ record[2] }}" datafile="{{ record[8] }}" dataorigname="{{ record[9] }}" onclick="openModal(this)">
+                        <a href="#" class="edit-button" data-record="{{ record[0] }}" child_id="{{ child[0] }}" field_id="{{ child[4] }}" data-child="{{ child[1] }}" def-doc="{{ record[3] }}" data-default="{{ record[2] }}" datafile="{{ record[8] }}" dataorigname="{{ record[9] }}" onclick="openModal(this)">
                             <img class="t1107__img_1 t-margin_auto t-img" src="{{ url_for('static', filename='img/pen.png') }}" style="max-width:30px;" alt="">
                         </a>
                         <a href="#" class="delete-button" data-record="{{ record[0] }}" onclick="deleteRecord(this)">
@@ -149,10 +117,11 @@
     <div id="myModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
-            <form id="editForm" action="/save_data" method="post" enctype="multipart/form-data">
+            <form class="form" id="editForm" action="/save_data" method="post" enctype="multipart/form-data">
                 <label>ФИО:</label>
                 <input type="hidden" id="record-id" name="record-id" readonly>
                 <input type="hidden" id="id_spisok" name="id_spisok" readonly>
+                <input type="hidden" id="field_id" name="field_id" readonly>
                 <span id="fio"></span>
                 <br><br>
 
@@ -182,7 +151,7 @@
 
 
                 <input type="submit" value="Сохранить">
-<!--                <button type="button" onclick="deleteRecord()">Удалить</button>-->
+                <button type="button" class="cancel-button" onclick="history.back();">Отмена</button> <!-- Кнопка Отмена -->
 
             </form>
         </div>
@@ -406,5 +375,7 @@
             }
         }
     </script>
-</body>
-</html>
+
+
+
+{% endblock %}

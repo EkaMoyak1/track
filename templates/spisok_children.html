@@ -4,32 +4,31 @@
 
 {% block content %}
 
-     <script>
+    <script>
          function filterTable() {
             // Получаем значения фильтров
-            const filterName = document.getElementById("filterName").value.toLowerCase();
-            const filterOpisanie = document.getElementById("filterOpisanie").value.toLowerCase();
-            const filterDB = document.getElementById("filterDB").value;
-            const filterDE = document.getElementById("filterDE").value;
+            const filterFIO = document.getElementById("filterFIO").value.toLowerCase();
+            const filterDR = document.getElementById("filterDR").value;
+            const filterAge = document.getElementById("filterAge").value;
 
-            const table = document.getElementById("eventTable");
+            const table = document.getElementById("childrenTable");
             const tr = table.getElementsByTagName("tr");
             let visibleRowCount = 0; // Счетчик для видимых строк
 
             // Проходим по всем строкам таблицы (кроме заголовка)
             for (let i = 1; i < tr.length; i++) {
-                const tdName = tr[i].getElementsByTagName("td")[1];
-                const tdOpisanie = tr[i].getElementsByTagName("td")[2];
-                const tdDB = tr[i].getElementsByTagName("td")[3];
-                const tdDE = tr[i].getElementsByTagName("td")[4];
+                const tdФИО = tr[i].getElementsByTagName("td")[1];
+                const tdНаправление = tr[i].getElementsByTagName("td")[2];
+                const tdСтудия = tr[i].getElementsByTagName("td")[3];
 
                 // Скрываем строку, если ни одно из полей не соответствует фильтрам
                 if (
-                    (tdName && tdName.textContent.toLowerCase().indexOf(filterName) > -1) &&
-                    (tdOpisanie && tdOpisanie.textContent.toLowerCase().indexOf(filterOpisanie) > -1) &&
-                    (tdDB && tdDB.textContent.indexOf(filterDB) > -1) &&
-                    (tdDE && tdDE.textContent.indexOf(filterDE) > -1)
-                ) {
+                    (tdФИО && tdФИО.textContent.toLowerCase().indexOf(filterFIO) > -1) &&
+                    (tdНаправление && tdНаправление.textContent.toLowerCase().indexOf(filterDR) > -1) &&
+                    (tdСтудия && tdСтудия.textContent.toLowerCase().indexOf(filterAge) > -1)
+                    )
+
+                {
                     tr[i].style.display = ""; // Показываем строку
                     visibleRowCount++;
                     tr[i].getElementsByTagName("td")[0].textContent = visibleRowCount; // Обновляем порядковый номер
@@ -40,7 +39,7 @@
         }
 
         function sortTable(columnIndex) {
-            const table = document.getElementById("eventTable");
+            const table = document.getElementById("childrenTable");
             const tbody = table.getElementsByTagName("tbody")[0];
             const rows = Array.from(tbody.getElementsByTagName("tr"));
 
@@ -68,56 +67,53 @@
         }
     </script>
 
-    <h1>Список конкурсов</h1>
+    <h1>Весь список детей</h1>
 
-<!--    <a href="{{ url_for('add_konkurs', event_id='') }}" class="btn">-->
-    <!-- Кнопка добавить -->
-    <a href="#" id="add-event-btn"  class="btn" data-toggle="modal" data-target="#addEventdModal">
-        <i class="fas fa-plus"></i> Добавить конкурс
+    <a href="#" id="add-child-btn"  class="btn" data-toggle="modal" data-target="#addChildModal">
+    <i class="fas fa-plus"></i> Добавить ребенка
     </a>
 
     <!-- Форма фильтрации -->
     <div class="filter-container">
-        <input type="text" id="filterName" oninput="filterTable()" placeholder="Название конкурса">
-        <input type="text" id="filterOpisanie" oninput="filterTable()" placeholder="Описание конкурса">
-        <input type="date" id="filterDB" oninput="filterTable()" placeholder="Дата подачи заявки">
-        <input type="date" id="filterDE" oninput="filterTable()" placeholder="Дата результата">
+        <input type="text" id="filterFIO" oninput="filterTable()" placeholder="ФИО ребенка">
+        <input type="date" id="filterDR" oninput="filterTable()" placeholder="Дата рождения">
+        <input type="number" id="filterAge" oninput="filterTable()" placeholder="Возраст">
     </div>
 
-    <table id="eventTable">
+    <table id="childrenTable">
         <thead>
             <tr>
                 <th>№</th>
-                <th onclick="sortTable(1)">Полное название конкурса</th>
-                <th onclick="sortTable(2)">Описание</th>
-                <th onclick="sortTable(3)">Срок подачи</th>
-                <th onclick="sortTable(4)">Дата результата</th>
+                <th  onclick="sortTable(1)">ФИО</th>
+                <th onclick="sortTable(2)">Дата рождения</th>
+                <th  onclick="sortTable(3)">Возраст</th>
                 <th>Действия</th>
             </tr>
         </thead>
         <tbody>
-            {% for event in events %}
+            {% for child in children %}
             <tr>
-                <td>{{ loop.index }}</td>
-                <td><a href="{{ url_for('spisok_in_event', event=event[0]) }}">{{ event[1] }}</a></td>
-                <td>{{ event[2] }}</td>
-                <td>{{ event[3] }}</td>
-                <td>{{ event[4] }}</td>
+<!--                <td>{{ child[0] }}</td>-->
+                <td>{{ loop.index }}</td>  <!-- Используем loop.index для порядкового номера -->
+                <td>{{ child[1] }}</td>
+                <td>{{ child[2] }}</td>
+                <td>{{ child[3] }}</td>
                 <td>
                     <!-- Иконка редактирования -->
-                    <a href="{{ url_for('edit_event_inevent', id_event=event[0]) }}" class="edit-btn">
+                    <a href="{{ url_for('edit_child_in_spisok', child_id=child[0]) }}" class="edit-btn">
                         <img src="{{ url_for('static', filename='img/pen.png') }}" alt="Редактировать" style="width: 24px; height: 24px;">
                     </a>
                     <!-- Иконка удаления (пример) -->
-                    <a href="{{ url_for('delete_event', id_event=event[0]) }}" class="delete-btn" onclick="return confirm('Вы уверены, что хотите удалить этот конкурс?');">
+                    <a href="{{ url_for('delete_child_in_spisok', child_id=child[0]) }}" class="delete-btn" onclick="return confirm('Вы уверены, что хотите удалить этого ребенка?');">
                         <img src="{{ url_for('static', filename='img/del.png') }}" alt="Удалить" style="width: 24px; height: 24px;">
                     </a>
                 </td>
-            </tr>
+               </tr>
             {% endfor %}
         </tbody>
     </table>
     <br><br><br>
+
 
     <div id="successDialog"  style="display: none;">
         <div class="dialog-content">
@@ -127,27 +123,23 @@
     </div>
 
     <!-- Модальное окно -->
-    <div id="addEventdModal" class="modal">
+    <div id="addChildModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h1>Добавить конкурс</h1>
-            <form method="POST" action="{{ url_for('add_konkurs') }}">
-                <label for="name">Название:</label>
-                <input type="text" id="name" name="name" required><br>
+            <h1>Добавить ребенка</h1>
+            <form class="form" method="POST" action="{{ url_for('add_child_in_spisok_1') }}">
+                <label for="fio1">ФИО:</label>
+                <input type="text" id="fio1" name="fio1" required><br>
                 <br>
-                <label for="opisanie">Описание</label>
-                <input type="text" id="opisanie" name="opisanie" required><br>
+                <label for="date_bd">Дата рождения:</label>
+                <input type="date" id="date_bd" name="date_bd" required><br>
                 <br>
-                <label for="srock">Срок подачи заявки:</label>
-                <input type="date" id="srock" name="srock" ><br>
+                <label for="age">Возраст:</label>
+                <input type="number" id="age" name="age" required><br>
                 <br><br>
-                <label for="resultat_date">Дата результата:</label>
-                <input type="date" id="resultat_date" name="resultat_date" ><br>
-                <br><br>
-                <br><br>
-                <input type="submit" value="Добавить">
-                <button type="button" class="cancel-button" onclick="closeModal();">Отмена</button> <!-- Кнопка Отмена -->
-
+                <button class="btn-black" type="submit">Добавить</button>
+<!--                <input type="submit" value="Добавить запись">-->
+                <button type="button" class="cancel-button" onclick="closeModal()">Отмена</button> <!-- Кнопка Отмена -->
                 <br>
             </form>
         </div>
@@ -155,9 +147,15 @@
 
     <script>
 
+         // Функция для закрытия модального окна
+        function closeModal() {
+            var modal = document.getElementById("addChildModal");
+            modal.style.display = "none";
+        }
+
         // Получаем элементы
-        var modal = document.getElementById("addEventdModal");
-        var btn = document.getElementById("add-event-btn");
+        var modal = document.getElementById("addChildModal");
+        var btn = document.getElementById("add-child-btn");
         var span = document.getElementsByClassName("close")[0];
 
         // Открываем модальное окно при нажатии на кнопку
@@ -177,11 +175,26 @@
             }
         }
 
-        document.querySelector("#addEventdModal .btn").onclick = function(event) {
-            event.preventDefault(); // Предотвращаем стандартное поведение формы
+        document.getElementById('date_bd').addEventListener('change', function() {
+            const birthDate = new Date(this.value);
+            const today = new Date();
+
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+
+            // Если текущий месяц до месяца рождения или текущий день меньше дня рождения, уменьшаем возраст на 1
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+
+            document.getElementById('age').value = age;
+        });
+
+        document.querySelector("#addChildModal .btn").onclick = function(event) {
+<!--            event.preventDefault(); // Предотвращаем стандартное поведение формы-->
 
             // Получаем данные из формы
-            const form = document.querySelector("#addEventdModal form");
+            const form = document.querySelector("#addChildModal form");
             const formData = new FormData(form);
 
             // Отправляем данные на сервер с использованием Fetch API
@@ -191,12 +204,13 @@
             })
             .then(response => {
                 if (response.ok) {
-                    return response.json(); // или response.text() в зависимости от ответа сервера
+<!--                  return response.json(); // response.text() -->
+                        return "response.text()"
                 }
                 throw new Error('Network response was not ok.');
             })
             .then(data => {
-                console.log('Success:', data);
+               console.log('Success:', "OK");
 
                 // Измените текст на успешное сообщение
                 const dialogMessage = document.getElementById('dialogMessage_1');
@@ -231,4 +245,5 @@
             modal.style.display = "none";
         };
     </script>
+
 {% endblock %}

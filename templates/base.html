@@ -1,0 +1,39 @@
+<!-- base.html -->
+   <!DOCTYPE html>
+   <html lang="ru">
+   <head>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <title>{% block title %}Путь к успеху{% endblock %}</title>
+       <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+       <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+   </head>
+   <body>
+       <!-- Включаем шапку -->
+       {% include 'header.html' %}
+
+       <div class="wrapper">
+            <div class="content">
+                 {% with messages = get_flashed_messages(with_categories=true) %}
+                 {% if messages %}
+                   <div class="flash-messages">
+                     {% for category, message in messages %}
+                       <div class="alert alert-{{ category }}">
+                         {{ message }}
+                       </div>
+                     {% endfor %}
+                   </div>
+                 {% endif %}
+                {% endwith %}
+               <main>
+                   {% block content %}
+                   <!-- Основное содержимое страницы -->
+                   {% endblock %}
+               </main>
+             </div>
+            <!-- Включаем подвал -->
+            {% include 'footer.html' %}
+
+       </div>
+   </body>
+   </html>

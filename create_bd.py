@@ -4,19 +4,34 @@ import SQL
 def create_tables():
     db_lp = sqlite3.connect('date_source.db')
     cursor_db = db_lp.cursor()
-    sql_create = '''CREATE TABLE if NOT exists spisok(
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    fio TEXT NOT NULL,
-                    date_bd DATE NOT NULL,
-                    age INT,
-                    napravlenie INTEGER NOT NULL,
-                    studio INTEGER NOT NULL,
-                    pedagog INTEGER NOT NULL
-                    );'''
 
-    cursor_db.execute(sql_create)
+    # Создаем новую таблицу spisok - весь список детей
+    sql_create_spisok = '''
+    CREATE TABLE IF NOT EXISTS spisok (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        fio TEXT NOT NULL,
+        date_bd DATE NOT NULL,
+        age INT
+    );
+    '''
+    cursor_db.execute(sql_create_spisok)
     db_lp.commit()
 
+    # Создаем новую таблицу spisok_in_studio - дети в студиях
+    sql_create_spisok_in_studio = '''
+    CREATE TABLE IF NOT EXISTS spisok_in_studio (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id_spisok INTEGER NOT NULL,
+        napravlenie INTEGER NOT NULL,
+        studio INTEGER NOT NULL,
+        pedagog INTEGER NOT NULL,
+        FOREIGN KEY (id_spisok) REFERENCES spisok(id)
+    );
+    '''
+    cursor_db.execute(sql_create_spisok_in_studio)
+    db_lp.commit()
+
+    # Справочник конкурсов
     sql_create = '''CREATE TABLE if NOT exists events_table(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name TEXT NOT NULL,
@@ -28,9 +43,11 @@ def create_tables():
     cursor_db.execute(sql_create)
     db_lp.commit()
 
+    # Участие детей в конкурсах
     sql_create = '''CREATE TABLE if NOT exists data_table(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     id_spisok int NOT NULL,
+                    id_spisok_in_studio INTEGER NOT NULL,
                     id_events_table int NOT NULL,
                     result TEXT,
                     original_name TEXT,
@@ -52,6 +69,15 @@ def create_tables():
     sql_create = '''CREATE TABLE if NOT exists spr_studya(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name TEXT NOT NULL
+                     );'''
+
+    cursor_db.execute(sql_create)
+    db_lp.commit()
+
+    sql_create = '''CREATE TABLE if NOT exists studyas_in_napravlenie(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id_studya int NOT NULL,
+                    id_napravlenie int NOT NULL
                      );'''
 
     cursor_db.execute(sql_create)
@@ -83,8 +109,80 @@ def show_tbl(table):
     db_lp.close()
     print(tbl)
 
+def drop_table(name):
+    db_lp = sqlite3.connect('date_source.db')
+    cursor_db = db_lp.cursor()
+    # Удаление всех записей из таблицы data_table
+    sql_delete_all = 'DELETE FROM data_table;'
+    cursor_db.execute(sql_delete_all)
+
+    # Подтверждение изменений
+    db_lp.commit()
+
+    # Закрытие соединения с базой данных
+    db_lp.close()
+
+def test():
+    db_lp = sqlite3.connect('date_source.db')
+    cursor_db = db_lp.cursor()
+    # Удаление всех записей из таблицы data_table
+    cursor_db.execute('''
+                       SELECT * from spisok_in_studio 
+                       WHERE  spisok_in_studio.pedagog = ?
+                       ''', (11,))
+    data = cursor_db.fetchall()
+    print(data)
+    cursor_db.close()
+    db_lp.close()
+
 if __name__ == '__main__':
-    # create_tables()
-    SQL.add_super_user()
-    show_tbl('teacher')
-    # show_tbl('spisok')
+    # create_tables()1
+    # SQL.add_super_user()
+    # show_tbl('teacher')
+    print('1 - show')
+    print('2 - drop')
+    print('3 - test')
+
+    rej = int(input('выберите режим '))
+
+    if rej == 3:
+        test()
+    else:
+
+        print()
+        print('1 - spisok - дети')
+        print('2 - spisok_in_studio - дети в студиях')
+        print('3 - events_table')
+        print('4 - data_table')
+        print('5 - spr_napravlenie')
+        print('6 - spr_studya')
+        print('7 - studyas_in_napravlenie')
+        print('8 - teacher')
+        tab = int(input('выберите таблицу '))
+        name=''
+        if tab == 1:
+            name = 'spisok'
+        elif tab == 2:
+            name = 'spisok_in_studio'
+        elif tab == 3:
+            name = 'events_table'
+        elif tab == 4:
+            name = 'data_table'
+        elif tab == 5:
+            name = 'spr_napravlenie'
+        elif tab == 6:
+            name = 'spr_studya'
+        elif tab == 7:
+            name = 'studyas_in_napravlenie'
+        elif tab == 8:
+            name = 'teacher'
+
+        if rej==1:
+            show_tbl(name)
+        elif rej==2:
+            r = input(' Вы уверены очистить все данные? (Y/N) ')
+            if r == 'Y':
+                drop_table(name)
+
+
+

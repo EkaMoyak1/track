@@ -1,4 +1,13 @@
+html, body {
 
+    margin: 0;
+}
+
+.wrapper {
+    display: grid;
+       grid-template-rows: 1fr auto;
+       min-height: 75vh;
+}
 
 body {
     font-family: Arial, sans-serif;
@@ -237,6 +246,7 @@ select, input[type="date"], input[type="text"], input[type="file"] {
 }
 
 input[type="submit"] {
+
     background: #35424a;
     color: #ffffff;
     border: none;
@@ -247,7 +257,7 @@ input[type="submit"] {
     width: 100%;
 }
 
-input[type="submit"]:hover {
+form input[type="submit"]:hover {
     background: #2c3e50;
 }
 
@@ -433,4 +443,180 @@ a {
 .filter-container input::placeholder {
     color: #aaa; /* Цвет текста плейсхолдера */
 }
+
+.select-container {
+    display: flex;
+    align-items: center;
+}
+
+.select-container a {
+    margin-top: -10px;
+    margin-left: 20px;
+    text-decoration: none;
+    color: #3E619B;
+    font-size: 50px;
+    line-height: 1; /* Это поможет выровнять символ по высоте с текстом */
+}
+
+.select-container a:hover {
+    color: #D05859; /* Цвет текста при наведении */
+}
+
+#successDialog {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.dialog-content {
+    text-align: center;
+}
+
+#okButton {
+    margin-top: 10px;
+}
+
+
+ /* Добавленные стиля для подвала */
+footer {
+    background-color: #f8f9fa; /* Цвет фона подвала */
+    padding: 20px; /* Внутренние отступы */
+}
+
+.footer-columns {
+    display: flex; /* Используем Flexbox для выравнивания элементов */
+    justify-content: space-between; /* Равномерно распределяем пространство между колонками */
+    align-items: flex-end; /* Выравниваем элементы по нижнему краю */
+}
+
+.footer-left {
+    flex: 1; /* Занимает всё доступное пространство слева */
+    align-self: flex-end; /* Выровнять только этот элемент по нижнему краю */
+}
+
+.footer-right {
+    display: flex;
+    gap: 20px; /* Расстояние между правыми колонками */
+}
+
+.footer-columns p, .footer-columns a {
+    margin: 5px 0; /* Отступы между элементами внутри колонок */
+    font-size: 12px; /* Устанавливаем размер шрифта */
+}
+
+.footer-columns a {
+    display: block; /* Делаем ссылки блочными для выравнивания по вертикали */
+    color: #007bff; /* Цвет текста ссылок */
+    text-decoration: none; /* Убираем подчеркивание */
+}
+
+.footer-columns a:hover {
+    text-decoration: underline; /* Добавляем подчеркивание при наведении */
+}
+
+#progress {
+            width: 100%;
+            background-color: #f3f3f3;
+            border: 1px solid #ccc;
+            height: 30px;
+            display: none;
+}
+#progress-bar {
+    width: 0;
+    height: 100%;
+    background-color: #4caf50;
+}
+
+.flash-messages {
+       margin: 20px 0;
+   }
+
+   .alert {
+       padding: 10px;
+       border-radius: 5px;
+       margin-bottom: 10px;
+   }
+
+   .alert-success {
+       background-color: #d4edda;
+       color: #155724;
+   }
+
+
+.button-container {
+    display: flex;
+    justify-content: center;
+}
+
+.add-button-plus {
+    text-decoration: none;
+    font-size: 24px; /* Увеличиваем размер плюса */
+    padding: 10px 10px;
+    font-weight: bold;
+    color: #ffffff; /* Цвет кнопки в соответствии с заголовком */
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+    margin: 10px auto; /* Центрирование кнопки и отступ сверху и снизу */
+}
+
+.add-button-plus:hover {
+    background-color: #0056b3; /* Темнее при наведении */
+}
+
+button.cancel-button {
+    background: #7f8c8d; /* Серый цвет */
+    color: #ffffff;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+    width: 100%;
+    margin-top: 10px; /* Верхний отступ */
+}
+
+button.cancel-button:hover {
+    background: #95a5a6; /* Светлый серый цвет при наведении */
+}
+
+.cancel-button-form {
+    color: #bdc3c7; /* Светло-серый цвет для крестика */
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: color 0.3s;
+    width: 100%;
+    margin-top: 10px; /* Верхний отступ */
+    text-align: right; /* Размещение справа */
+}
+
+.cancel-button-form:hover {
+    color: #000000; /* Черный цвет при наведении */
+}
+
+
+button.btn-black {
+    background: #35424a;
+    color: #ffffff;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+    width: 100%;
+}
+
+button.btn-black:hover {
+    background: #2c3e50; /* Светлый серый цвет при наведении */
+}
+
 

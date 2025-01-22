@@ -8,11 +8,21 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SQL.py" beforeDir="false" afterPath="$PROJECT_DIR$/SQL.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/create_bd.py" beforeDir="false" afterPath="$PROJECT_DIR$/create_bd.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/date_source.db" beforeDir="false" afterPath="$PROJECT_DIR$/date_source.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/date_source.db" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/flask_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/flask_app.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/load_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/load_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/styles.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/add_child.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/add_child.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/add_event.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/add_event.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/child_profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/child_profile.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/children_profiles.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/children_profiles.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/edit_child.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/edit_child.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/edit_field.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/edit_field.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/events.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/events.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/login.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/spisok.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/spisok.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Удаление таблицы.py" beforeDir="false" afterPath="$PROJECT_DIR$/Удаление таблицы.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,12 +63,13 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "D:/Python Project/Git_track",
+    "last_opened_file_path": "D:/Python Project/Git_track/templates",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Python Project\Git_track\templates" />
       <recent name="D:\Python Project\Git_track" />
     </key>
   </component>

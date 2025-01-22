@@ -4,11 +4,15 @@
 
 {% block content %}
 
-    <h3 style="text-align: center; font-size: 25px">Изменение данных по ребенку</h3>
-    <form class="form"  method="POST">
 
+    <h3 style="text-align: center; font-size: 25px">Изменение данных по ребенку</h3>
+    <form class="form" method="POST">
+        <span class="cancel-button-form" onclick="history.back();">&times;</span>
         <h2>{{child[1]}}</h2>
         <br>
+
+        <label for="fio">ФИО:</label>
+        <input type="string" id="fio" name="fio" value = "{{child[1]}}" required style="width: 100%;" required><br>
 
         <label for="date_bd">Дата рождения:</label>
         <input type="date" id="date_bd" name="date_bd" value = "{{child[2]}}" required><br>
@@ -16,31 +20,9 @@
         <label for="age">Возраст:</label>
         <input type="number" id="age" name="age" value = "{{child[3]}}"  required><br>
         <br>
-        <label for="napr">Направление:</label>
-        <select name="id_napr_table" id="napr" required>
-            {% for napr_zap in napr_table %}
-                <option value="{{ napr_zap[0] }}" {% if napr_zap[0] == child[4] %}selected{% endif %}>{{ napr_zap[1] }}</option>
-            {% endfor %}
-        </select>
-        <br>
-        <label for="studio">Студия:</label>
-<!--        <input type="number" id="studio" name="studio"  value = "{{child[5]}}"  required><br>-->
-        <select name="id_studio" id="studio" required>
-            {% for studio_zap in spr_studya %}
-                <option value="{{ studio_zap[0] }}" {% if studio_zap[0] == child[5] %}selected{% endif %}>{{ studio_zap[1] }}</option>
-            {% endfor %}
-        </select>
-        <br>
-        <label for="teacher">Педагог:</label>
-<!--        <input type="number" id="pedagog" name="pedagog" value = "{{child[6]}}"  required><br>-->
-        <select name="id_teacher" id="teacher" required>
-            {% for teach in teacher %}
-                <option value="{{ teach[0] }}" {% if teach[0] == child[6] %}selected{% endif %}>{{ teach[1] }}</option>
-            {% endfor %}
-        </select>
         <br><br>
 
-<!--        <button " type="submit">Сохранить</button>-->
+<!--        <button class="btn" type="submit">Сохранить</button>-->
         <input type="submit" value="Сохранить">
         <button type="button" class="cancel-button" onclick="history.back();">Отмена</button> <!-- Кнопка Отмена -->
     </form>
@@ -63,5 +45,4 @@
             });
 
     </script>
-
 {% endblock %}
