@@ -122,18 +122,46 @@ def drop_table(name):
     # Закрытие соединения с базой данных
     db_lp.close()
 
+
+import pandas as pd
+
+
 def test():
     db_lp = sqlite3.connect('date_source.db')
     cursor_db = db_lp.cursor()
-    # Удаление всех записей из таблицы data_table
+
+    # Выполнение запроса
     cursor_db.execute('''
-                       SELECT * from spisok_in_studio 
-                       WHERE  spisok_in_studio.pedagog = ?
-                       ''', (11,))
+                      SELECT
+                            teacher.FIO AS teacher_name,
+                            spisok.fio AS student_name,
+                            events_table.name AS event_name,
+                            strftime('%m', events_table.result_date) AS result_month, 
+                            data_table.result AS event_result
+                        FROM
+                            data_table
+                        JOIN spisok ON data_table.id_spisok = spisok.id
+                        JOIN spisok_in_studio ON data_table.id_spisok_in_studio = spisok_in_studio.id
+                        JOIN teacher ON spisok_in_studio.pedagog = teacher.id
+                        JOIN events_table ON data_table.id_events_table = events_table.id
+                        ORDER BY teacher_name, event_name, student_name;
+                       ''')
+
+    # Извлечение данных
     data = cursor_db.fetchall()
-    print(data)
+    columns = [description[0] for description in cursor_db.description]
+
+    # Закрытие соединения с базой данных
     cursor_db.close()
     db_lp.close()
+
+    # Создание DataFrame
+    df = pd.DataFrame(data, columns=columns)
+
+    # Сохранение в Excel
+    df.to_excel('output.xlsx', index=False)
+
+    print("Данные успешно сохранены в файл output.xlsx")
 
 if __name__ == '__main__':
     # create_tables()1
