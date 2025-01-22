@@ -344,7 +344,7 @@ def get_children_group(user, filter=False):
         max(spisok.age), 
         max(spr_napravlenie.name), 
         max(spr_studya.name), 
-        teacher.fio as pedagog, 
+        max(teacher.fio) as pedagog, 
         spisok.id 
         FROM spisok  
         JOIN spisok_in_studio ON spisok_in_studio.id_spisok = spisok.id
@@ -356,7 +356,7 @@ def get_children_group(user, filter=False):
             text += ' where spisok.id in (select id_spisok from data_table group by id_spisok) '
 
         cursor_db.execute(text + '''
-        GROUP BY spisok.fio, spisok.id, teacher.fio
+        GROUP BY spisok.fio, spisok.id
         ORDER BY fio
         ''')
     else:
