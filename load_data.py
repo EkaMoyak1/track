@@ -5,6 +5,7 @@ import create_bd
 import SQL
 from datetime import datetime
 import numpy as np
+from tkinter import filedialog, Tk
 
 
 def calculate_age(birth_date):
@@ -174,6 +175,28 @@ def update_spisok_in_stud(excel_file_path, db_lp, cursor_db):
     db_lp.commit()
 
 
+def update_spisok_add(excel_file_path, db_lp, cursor_db):
+    # Чтение данных с 5 листа (spisok)
+    spisok_df = pd.read_excel(excel_file_path, sheet_name=4)
+
+    # Загрузка данных в таблицу spisok построчно
+    for index, row in spisok_df.iterrows():
+        # Преобразование строки в словарь
+        row_data = row.tolist()
+        result_date = row_data[1]
+        result_date_data = result_date.strftime('%Y-%m-%d')
+        age = calculate_age(result_date)
+        if row_data[3] != 2:
+            print(row_data[0], row_data[3])
+            cursor_db.execute('''
+                    INSERT INTO spisok (fio, date_bd, age)
+                    VALUES (?, ?, ?)
+                ''', (row_data[0], result_date_data, age))
+
+    # Сохранение изменений в базе данных
+    db_lp.commit()
+
+
 def update_events(excel_file_path, db_lp, cursor_db):
     # Чтение данных со второго листа (events_table)
     events_table_df = pd.read_excel(excel_file_path, sheet_name=6)
@@ -198,8 +221,13 @@ def update_events(excel_file_path, db_lp, cursor_db):
     # Сохранение изменений в базе данных
     db_lp.commit()
 
+def update_st_in_napr(excel_file_path, db_lp, cursor_db):
+    # Чтение данных со 4 листа (events_table)
+
+    events_table_df = pd.read_excel(excel_file_path, sheet_name=3)
 
 def load_data():
+
 
     # Создание таблиц, если они не существуют
     create_bd.create_tables()
@@ -239,5 +267,42 @@ def load_data():
     db_lp.close()
 
 
+def load_add(rej=0):
+    pass
+    # try:
+    #     # Подключение к базе данных
+    #     db_lp = sqlite3.connect('date_source.db')
+    #     cursor_db = db_lp.cursor()
+    #     if rej==0:
+    #         cursor_db.execute('DELETE FROM spisok')
+    #         cursor_db.execute('DELETE FROM spisok_in_studio')
+    #         db_lp.commit()
+    #
+    # except:
+    #     raise 'нет базы'
+    # else:
+    #     # Загрузка данных из Excel-файла
+    #     excel_file_path = 'data-ver-3.xlsx'  # Укажите путь к вашему Excel-файлу
+    #
+    #     if not os.path.exists(excel_file_path):
+    #         raise FileNotFoundError(f"Файл {excel_file_path} не найден.")
+    #
+    #     if rej==0:
+    #         update_spisok_add(excel_file_path, db_lp, cursor_db)
+    #
+    #         update_spisok_in_stud(excel_file_path, db_lp, cursor_db)
+    #     else:
+    #         update_st_in_napr(excel_file_path, db_lp, cursor_db)
+    #
+    #
+    #     # Закрытие соединения с базой данных
+    #     cursor_db.close()
+    #     db_lp.close()
+
+def studio_in_napr():
+    load_add(1)
+
 if __name__ == '__main__':
-    load_data()
+    print('')
+    # load_data()
+    studio_in_napr()

@@ -71,11 +71,11 @@
 
 <body>
     <h1>Список детей по студиям</h1>
-    {% if show_load_button %}
-    <a href="{{ url_for('load_data_route') }}" class="load-btn">
-        <i class="fas fa-upload"></i> Загрузить данные
-    </a>
-    {% endif %}
+<!--    {% if show_load_button %}-->
+<!--    <a href="{{ url_for('load_data_route') }}" class="load-btn">-->
+<!--        <i class="fas fa-upload"></i> Загрузить данные-->
+<!--    </a>-->
+<!--    {% endif %}-->
     <a href="{{ url_for('add_child', child_id='') }}" class="btn">
         <i class="fas fa-plus"></i> Добавить ребенка в студию
     </a>

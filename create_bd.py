@@ -51,7 +51,8 @@ def create_tables():
                     id_events_table int NOT NULL,
                     result TEXT,
                     original_name TEXT,
-                    file TEXT
+                    file TEXT,
+                    date_otcheta DATE
                     );'''
 
     cursor_db.execute(sql_create)
@@ -126,6 +127,30 @@ def drop_table(name):
 import pandas as pd
 
 
+def add_column_to_table(table_name, column_name, column_type):
+    db_lp = sqlite3.connect('date_source.db')
+    cursor = db_lp.cursor()
+
+    # Создаем SQL-запрос для добавления нового столбца
+    sql_add_column = f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type};"
+
+    try:
+        # Выполняем SQL-запрос
+        cursor.execute(sql_add_column)
+
+        # Фиксируем изменения в базе данных
+        db_lp.commit()
+
+
+
+        print(f"Столбец '{column_name}' добавлен в таблицу '{table_name}'.")
+    except Exception as e:
+        # Обработка возможных ошибок
+        print(f"Ошибка при добавлении столбца '{column_name}': {e}")
+
+    # Закрытие соединения с базой данных
+    db_lp.close()
+
 def test():
     db_lp = sqlite3.connect('date_source.db')
     cursor_db = db_lp.cursor()
@@ -174,7 +199,8 @@ if __name__ == '__main__':
     rej = int(input('выберите режим '))
 
     if rej == 3:
-        test()
+        # test()
+        add_column_to_table("data_table", "date_otcheta", "DATE")
     else:
 
         print()

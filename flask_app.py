@@ -1,6 +1,9 @@
+import datetime
+
 from flask import Flask, render_template, redirect, url_for, request, flash, jsonify
 from flask import session
 import json
+import pandas as pd
 
 import sqlite3
 import load_data
@@ -65,10 +68,18 @@ def index():
     children = get_children(session['username'])
     return render_template('index.html', children=children)
 
+# первичная загрузка
 @app.route('/load')
 def load_data_route():
     load_data.load_data()  # Предполагается, что у вас есть функция load_data в load_data.py
     return redirect(url_for('index'))  # После завершения загрузки перенаправим на главную страницу
+
+# Дозагрузка списка детей
+@app.route('/load_add')
+def load_add():
+    load_data.load_data_add()  # Предполагается, что у вас есть функция load_data в load_data.py
+    return redirect(url_for('index'))  # После завершения загрузки перенаправим на главную страницу
+
 
 @app.route('/spisok')
 def spisok():
@@ -237,6 +248,7 @@ def add_child_in_spisok_1():
 @app.route('/add_child_in_spisok_2', methods=['GET', 'POST'])
 def add_child_in_spisok_2():
     if request.method == 'POST':
+        resp = add_in_spisok(request)
         return redirect(url_for('add_child'))
     else:
         return redirect(url_for('add_child'))
@@ -341,6 +353,70 @@ def delete_event(id_event):
     del_event(id_event)
     return redirect(url_for('events'))
 
+
+## Отчет
+@app.route('/otchet', methods=['GET', 'POST'])
+def otchet():
+    user = session.get('username')
+
+    if not user:
+        flash('Пользователь не авторизован.', 'error')
+        return redirect(request.referrer or '/')
+
+    # Получение пути к каталогу "Загрузки"
+    home_dir = os.path.expanduser('~')
+    downloads_dir = os.path.join(home_dir, 'Downloads')
+
+    # Формирование имени файла
+    file_name = os.path.join(downloads_dir, f'v_{datetime.datetime.today().strftime("%Y-%m-%d_%H-%M-%S")}.xlsx')
+
+    try:
+        # Подключение к базе данных
+        db_lp = sqlite3.connect('date_source.db')
+        cursor_db = db_lp.cursor()
+
+        # Выполнение запроса
+        cursor_db.execute('''
+                              SELECT
+                                    teacher.FIO AS teacher_name,
+                                    spisok.fio AS student_name,
+                                    events_table.name AS event_name,
+                                    strftime('%m', events_table.result_date) AS result_month, 
+                                    data_table.result AS event_result
+                                FROM
+                                    data_table
+                                JOIN spisok ON data_table.id_spisok = spisok.id
+                                JOIN spisok_in_studio ON data_table.id_spisok_in_studio = spisok_in_studio.id
+                                JOIN teacher ON spisok_in_studio.pedagog = teacher.id
+                                JOIN events_table ON data_table.id_events_table = events_table.id
+                                ORDER BY teacher_name, event_name, student_name;
+                               ''')
+
+        # Извлечение данных
+        data = cursor_db.fetchall()
+        columns = [description[0] for description in cursor_db.description]
+
+    except sqlite3.Error as e:
+        flash(f'Ошибка при работе с базой данных: {e}', 'error')
+        return redirect(request.referrer or '/')
+
+    finally:
+        # Закрытие соединения с базой данных
+        cursor_db.close()
+        db_lp.close()
+
+    # Создание DataFrame
+    df = pd.DataFrame(data, columns=columns)
+
+    try:
+        # Сохранение в Excel
+        df.to_excel(file_name, index=False)
+        flash(f"Данные успешно сохранены в файл {file_name}", 'success')
+    except Exception as e:
+        flash(f'Ошибка при сохранении в Excel: {e}', 'error')
+
+    # Возврат на предыдущую страницу
+    return redirect(request.referrer or '/')
 
 UPLOAD_FOLDER = 'static/load/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
