@@ -9,7 +9,7 @@ import sqlite3
 import load_data
 import os
 from SQL import *
-import uuid
+
 
 app = Flask(__name__)
 

@@ -4,8 +4,7 @@ import os
 import create_bd
 import SQL
 from datetime import datetime
-import numpy as np
-from tkinter import filedialog, Tk
+
 
 
 def calculate_age(birth_date):
