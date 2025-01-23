@@ -165,7 +165,6 @@ def get_data_by_id_spisok_kor(id_spisok, user):
     db_lp.close()
     return data
 
-
 def get_events_by_id(id):
     db_lp = sqlite3.connect('date_source.db')
     cursor_db = db_lp.cursor()
