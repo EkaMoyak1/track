@@ -228,7 +228,6 @@ def update_st_in_napr(excel_file_path, db_lp, cursor_db):
 
 def load_data():
 
-
     # Создание таблиц, если они не существуют
     create_bd.create_tables()
 

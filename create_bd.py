@@ -58,7 +58,6 @@ def create_tables():
     cursor_db.execute(sql_create)
     db_lp.commit()
 
-
     sql_create = '''CREATE TABLE if NOT exists spr_napravlenie(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name TEXT NOT NULL
@@ -237,6 +236,4 @@ if __name__ == '__main__':
             r = input(' Вы уверены очистить все данные? (Y/N) ')
             if r == 'Y':
                 drop_table(name)
-
-
 
