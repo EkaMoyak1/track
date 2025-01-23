@@ -1,6 +1,6 @@
 import datetime
 
-from flask import Flask, render_template, redirect, url_for, request, flash, jsonify
+from flask import Flask, render_template, redirect, url_for, request, flash, jsonify, send_file
 from flask import session
 import json
 import pandas as pd
@@ -355,7 +355,7 @@ def delete_event(id_event):
 
 
 ## Отчет
-@app.route('/otchet', methods=['GET', 'POST'])
+@app.route('/otchet', methods=['GET'])
 def otchet():
     user = session.get('username')
 
@@ -363,12 +363,18 @@ def otchet():
         flash('Пользователь не авторизован.', 'error')
         return redirect(request.referrer or '/')
 
-    # Получение пути к каталогу "Загрузки"
-    home_dir = os.path.expanduser('~')
-    downloads_dir = os.path.join(home_dir, 'Downloads')
-
     # Формирование имени файла
-    file_name = os.path.join(downloads_dir, f'v_{datetime.datetime.today().strftime("%Y-%m-%d_%H-%M-%S")}.xlsx')
+    file_name = f'v_{datetime.datetime.today().strftime("%Y-%m-%d_%H-%M-%S")}.xlsx'
+
+    # Получение текущей директории файла и добавление подкаталога `tmp`
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    tmp_dir = os.path.join(current_dir, 'tmp')
+
+    # Убедитесь, что директория `tmp` существует
+    os.makedirs(tmp_dir, exist_ok=True)
+
+    # Полный путь к файлу в подкаталоге `tmp`
+    file_path = os.path.join(tmp_dir, file_name)
 
     try:
         # Подключение к базе данных
@@ -410,13 +416,11 @@ def otchet():
 
     try:
         # Сохранение в Excel
-        df.to_excel(file_name, index=False)
-        flash(f"Данные успешно сохранены в файл {file_name}", 'success')
+        df.to_excel(file_path, index=False)
+        return send_file(file_path, as_attachment=True, download_name=file_name)
     except Exception as e:
         flash(f'Ошибка при сохранении в Excel: {e}', 'error')
-
-    # Возврат на предыдущую страницу
-    return redirect(request.referrer or '/')
+        return redirect(request.referrer or '/')
 
 
 UPLOAD_FOLDER = 'static/load/'
