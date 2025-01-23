@@ -418,6 +418,7 @@ def otchet():
     # Возврат на предыдущую страницу
     return redirect(request.referrer or '/')
 
+
 UPLOAD_FOLDER = 'static/load/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
