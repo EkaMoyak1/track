@@ -1,0 +1,11 @@
+# created by virtualenv automatically
+# Ignore Python virtual environments
+
+.venv/
+venv/
+
+# Ignore other common files
+__pycache__/
+*.py[cod]
+
+date_source.db

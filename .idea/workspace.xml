@@ -6,16 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="70364b84-829a-4296-9f41-64e8f0f50cb9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/create_bd.py" beforeDir="false" afterPath="$PROJECT_DIR$/create_bd.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data-ver-2.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/data-ver-2.xlsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/date_source.db" beforeDir="false" afterPath="$PROJECT_DIR$/date_source.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/flask_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/flask_app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/load_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/load_data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/output.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/output.xlsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/edit_field.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/edit_field.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/footer.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/footer.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/spisok.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/spisok.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/spisok_children.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/spisok_children.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
