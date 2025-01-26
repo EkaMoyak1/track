@@ -37,7 +37,8 @@ def create_tables():
                     name TEXT NOT NULL,
                     opisanie TEXT,
                     srok_podachi_date DATE,
-                    result_date DATE
+                    result_date DATE,
+                    level TEXT
                     );'''
 
     cursor_db.execute(sql_create)
@@ -151,41 +152,77 @@ def add_column_to_table(table_name, column_name, column_type):
     db_lp.close()
 
 def test():
+    user = 'admin'
     db_lp = sqlite3.connect('date_source.db')
     cursor_db = db_lp.cursor()
+    text = '''
+                       SELECT
+                    spisok_in_studio.napravlenie,
+                    teacher.FIO AS teacher_name,
+                    SUM(CASE WHEN events_table.level = 'Центровский' AND data_table.result = 'Сертификат участника' THEN 1 ELSE 0 END) AS c1,
+                    SUM(CASE WHEN events_table.level = 'Центровский' AND data_table.result != 'Сертификат участника' THEN 1 ELSE 0 END) AS c2,
+                    SUM(CASE WHEN events_table.level = 'Городской' AND data_table.result = 'Сертификат участника' THEN 1 ELSE 0 END) AS c3,
+                    SUM(CASE WHEN events_table.level = 'Городской' AND data_table.result != 'Сертификат участника' THEN 1 ELSE 0 END) AS c4,
+                    SUM(CASE WHEN events_table.level = 'Районный' AND data_table.result = 'Сертификат участника' THEN 1 ELSE 0 END) AS c3,
+                    SUM(CASE WHEN events_table.level = 'Районный' AND data_table.result != 'Сертификат участника' THEN 1 ELSE 0 END) AS c4,
+                    SUM(CASE WHEN events_table.level = 'Республиканский' AND data_table.result = 'Сертификат участника' THEN 1 ELSE 0 END) AS c5,
+                    SUM(CASE WHEN events_table.level = 'Республиканский' AND data_table.result != 'Сертификат участника' THEN 1 ELSE 0 END) AS c6,
+                    SUM(CASE WHEN events_table.level = 'Региональный' AND data_table.result = 'Сертификат участника' THEN 1 ELSE 0 END) AS c5,
+                    SUM(CASE WHEN events_table.level = 'Региональный' AND data_table.result != 'Сертификат участника' THEN 1 ELSE 0 END) AS c6,
+                    SUM(CASE WHEN events_table.level = 'Межрегиональный' AND data_table.result = 'Сертификат участника' THEN 1 ELSE 0 END) AS c5,
+                    SUM(CASE WHEN events_table.level = 'Межрегиональный' AND data_table.result != 'Сертификат участника' THEN 1 ELSE 0 END) AS c6,
+                    SUM(CASE WHEN events_table.level = 'Всероссийский' AND data_table.result = 'Сертификат участника' THEN 1 ELSE 0 END) AS c5,
+                    SUM(CASE WHEN events_table.level = 'Всероссийский' AND data_table.result != 'Сертификат участника' THEN 1 ELSE 0 END) AS c6,
+                    SUM(CASE WHEN events_table.level = 'Международный' AND data_table.result = 'Сертификат участника' THEN 1 ELSE 0 END) AS c5,
+                    SUM(CASE WHEN events_table.level = 'Международный' AND data_table.result != 'Сертификат участника' THEN 1 ELSE 0 END) AS c6
+                FROM
+                    data_table
+                JOIN spisok ON data_table.id_spisok = spisok.id
+                JOIN spisok_in_studio ON data_table.id_spisok_in_studio = spisok_in_studio.id
+                JOIN teacher ON spisok_in_studio.pedagog = teacher.id
+                JOIN events_table ON data_table.id_events_table = events_table.id
+                WHERE  (events_table.result_date BETWEEN ? AND ?)  and  data_table.result != ' '
+                '''
+    if user!='admin':
+       text += ''' 
+       and teacher.FIO = ? 
+       '''
 
-    # Выполнение запроса
-    cursor_db.execute('''
-                      SELECT
-                            teacher.FIO AS teacher_name,
-                            spisok.fio AS student_name,
-                            events_table.name AS event_name,
-                            strftime('%m', events_table.result_date) AS result_month, 
-                            data_table.result AS event_result
-                        FROM
-                            data_table
-                        JOIN spisok ON data_table.id_spisok = spisok.id
-                        JOIN spisok_in_studio ON data_table.id_spisok_in_studio = spisok_in_studio.id
-                        JOIN teacher ON spisok_in_studio.pedagog = teacher.id
-                        JOIN events_table ON data_table.id_events_table = events_table.id
-                        ORDER BY teacher_name, event_name, student_name;
-                       ''')
+    text += '''
+                GROUP BY
+                    spisok_in_studio.napravlenie, teacher_name
+                ORDER BY
+                    spisok_in_studio.napravlenie, teacher_name;
+
+            '''
+
+    if user != 'admin':
+        cursor_db.execute(text, ('2025-01-01', '2025-12-31', user))
+    else:
+        cursor_db.execute(text, ('2025-01-01', '2025-12-31'))
+    # WHERE
+    # events_table.result_date
+    # BETWEEN
+    # '2025-01-01'
+    # AND
+    # '2025-12-31' and not (events_table.level = '' or events_table.level = NULL)
 
     # Извлечение данных
     data = cursor_db.fetchall()
     columns = [description[0] for description in cursor_db.description]
-
+    print(data)
     # Закрытие соединения с базой данных
     cursor_db.close()
     db_lp.close()
 
-    # Создание DataFrame
-    df = pd.DataFrame(data, columns=columns)
 
-    # Сохранение в Excel
-    df.to_excel('output.xlsx', index=False)
-
-    print("Данные успешно сохранены в файл output.xlsx")
+    # # Создание DataFrame
+    # df = pd.DataFrame(data, columns=columns)
+    #
+    # # Сохранение в Excel
+    # df.to_excel('output.xlsx', index=False)
+    #
+    # print("Данные успешно сохранены в файл output.xlsx")
 
 if __name__ == '__main__':
     # create_tables()1
@@ -198,8 +235,8 @@ if __name__ == '__main__':
     rej = int(input('выберите режим '))
 
     if rej == 3:
-        # test()
-        add_column_to_table("data_table", "date_otcheta", "DATE")
+       test()
+        # add_column_to_table("events_table", "level", "TEXT")
     else:
 
         print()

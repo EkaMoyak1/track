@@ -537,15 +537,16 @@ def add_in_event(request):
     opisanie = request.form['opisanie']
     srock = request.form['srock']
     resultat_date = request.form['resultat_date']
+    level = request.form['level']
 
     try:
         # Логика добавления конкурса в базу данных
         conn = sqlite3.connect('date_source.db')
         cursor = conn.cursor()
         cursor.execute('''
-                    INSERT INTO events_table (name, opisanie, srok_podachi_date, result_date)
-                    VALUES (?, ?, ?, ?)
-                ''', (name, opisanie, srock, resultat_date))
+                    INSERT INTO events_table (name, opisanie, srok_podachi_date, result_date, level)
+                    VALUES (?, ?, ?, ?, ?)
+                ''', (name, opisanie, srock, resultat_date, level))
         conn.commit()
         conn.close()
         txt = 'Конкурс успешно добавлен'
@@ -626,15 +627,16 @@ def edit_in_events(request, id):
         opisanie = request.form['opisanie']
         srok_podachi_date = request.form['srok_podachi_date']
         result_date = request.form['result_date']
+        level = request.form['level']
 
         # Логика для обновления данных ребенка
         conn = sqlite3.connect('date_source.db')
         cursor = conn.cursor()
         cursor.execute('''
                             UPDATE events_table
-                            SET name=?, opisanie=?, srok_podachi_date=?, result_date=? 
+                            SET name=?, opisanie=?, srok_podachi_date=?, result_date=?, level=? 
                             where id = ?
-                    ''', (name, opisanie, srok_podachi_date, result_date, id))
+                    ''', (name, opisanie, srok_podachi_date, result_date, level, id))
         conn.commit()
         conn.close()
         txt = 'Конкурс успешно изменен'

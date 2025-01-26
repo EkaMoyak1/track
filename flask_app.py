@@ -1,12 +1,11 @@
-import datetime
 
 from flask import Flask, render_template, redirect, url_for, request, flash, jsonify, send_file
 from flask import session
 import json
 import pandas as pd
 
-import sqlite3
-import load_data
+
+import load_data, files
 import os
 from SQL import *
 
@@ -25,6 +24,7 @@ docs =[' ', 'Сертификат участника',
         'Лауреат 2 степени',
         'Лауреат 3 cтепени']
 
+levels = [' ', 'Центровский', 'Городской', 'Районный', 'Республиканский', 'Региональный', 'Межрегиональный', 'Всероссийский', 'Международный']
 # Функция для получения данных о конкретном ребенке по ID
 
 app.secret_key = os.urandom(24)
@@ -322,7 +322,7 @@ def delete_child(child_id):
 @app.route('/events')
 def events():
     events_t = get_events()
-    return render_template('events.html', events=events_t)
+    return render_template('events.html', events=events_t, levels=levels)
 
 
 ## ДОБАВЛЕНИЕ КОНКУРСА
@@ -332,7 +332,7 @@ def add_konkurs():
         result = add_in_event(request)
         # return result
         return redirect(url_for('events'))
-    return render_template('add_event.html')
+    return render_template('add_event.html', levels=levels)
 
 ## РЕДАКТИРОВАНИЕ конкурса
 @app.route('/edit_event_inevent/<int:id_event>', methods=['GET', 'POST'])
@@ -343,8 +343,8 @@ def edit_event_inevent(id_event):
         edit_in_events(request, id_event)
         return redirect(url_for('events'))
     else:
-        print(id_event)
-        return render_template('edit_event_in_event.html', event=ev)  #
+        print(levels)
+        return render_template('edit_event_in_event.html', event=ev, levels=levels)  #
 
 
 ## УДАЛЕНИЕ КОНКУРСА
@@ -352,6 +352,7 @@ def edit_event_inevent(id_event):
 def delete_event(id_event):
     del_event(id_event)
     return redirect(url_for('events'))
+
 
 
 ## Отчет
@@ -363,64 +364,11 @@ def otchet():
         flash('Пользователь не авторизован.', 'error')
         return redirect(request.referrer or '/')
 
-    # Формирование имени файла
-    file_name = f'v_{datetime.datetime.today().strftime("%Y-%m-%d_%H-%M-%S")}.xlsx'
+    file_path = files.update_excel_template(user)
 
-    # Получение текущей директории файла и добавление подкаталога `tmp`
-    current_dir = os.path.abspath(os.path.dirname(__file__))
-    tmp_dir = os.path.join(current_dir, 'tmp')
+    file_name ='output.xlsx'
+    return send_file(file_path, as_attachment=True, download_name=file_name)
 
-    # Убедитесь, что директория `tmp` существует
-    os.makedirs(tmp_dir, exist_ok=True)
-
-    # Полный путь к файлу в подкаталоге `tmp`
-    file_path = os.path.join(tmp_dir, file_name)
-
-    try:
-        # Подключение к базе данных
-        db_lp = sqlite3.connect('date_source.db')
-        cursor_db = db_lp.cursor()
-
-        # Выполнение запроса
-        cursor_db.execute('''
-                              SELECT
-                                    teacher.FIO AS teacher_name,
-                                    spisok.fio AS student_name,
-                                    events_table.name AS event_name,
-                                    strftime('%m', events_table.result_date) AS result_month, 
-                                    data_table.result AS event_result
-                                FROM
-                                    data_table
-                                JOIN spisok ON data_table.id_spisok = spisok.id
-                                JOIN spisok_in_studio ON data_table.id_spisok_in_studio = spisok_in_studio.id
-                                JOIN teacher ON spisok_in_studio.pedagog = teacher.id
-                                JOIN events_table ON data_table.id_events_table = events_table.id
-                                ORDER BY teacher_name, event_name, student_name;
-                               ''')
-
-        # Извлечение данных
-        data = cursor_db.fetchall()
-        columns = [description[0] for description in cursor_db.description]
-
-    except sqlite3.Error as e:
-        flash(f'Ошибка при работе с базой данных: {e}', 'error')
-        return redirect(request.referrer or '/')
-
-    finally:
-        # Закрытие соединения с базой данных
-        cursor_db.close()
-        db_lp.close()
-
-    # Создание DataFrame
-    df = pd.DataFrame(data, columns=columns)
-
-    try:
-        # Сохранение в Excel
-        df.to_excel(file_path, index=False)
-        return send_file(file_path, as_attachment=True, download_name=file_name)
-    except Exception as e:
-        flash(f'Ошибка при сохранении в Excel: {e}', 'error')
-        return redirect(request.referrer or '/')
 
 
 UPLOAD_FOLDER = 'static/load/'

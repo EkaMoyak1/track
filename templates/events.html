@@ -11,6 +11,7 @@
             const filterOpisanie = document.getElementById("filterOpisanie").value.toLowerCase();
             const filterDB = document.getElementById("filterDB").value;
             const filterDE = document.getElementById("filterDE").value;
+            const filterLevel = document.getElementById("filterLevel").value;
 
             const table = document.getElementById("eventTable");
             const tr = table.getElementsByTagName("tr");
@@ -22,13 +23,15 @@
                 const tdOpisanie = tr[i].getElementsByTagName("td")[2];
                 const tdDB = tr[i].getElementsByTagName("td")[3];
                 const tdDE = tr[i].getElementsByTagName("td")[4];
+                const tdLevel = tr[i].getElementsByTagName("td")[5];
 
                 // Скрываем строку, если ни одно из полей не соответствует фильтрам
                 if (
                     (tdName && tdName.textContent.toLowerCase().indexOf(filterName) > -1) &&
                     (tdOpisanie && tdOpisanie.textContent.toLowerCase().indexOf(filterOpisanie) > -1) &&
                     (tdDB && tdDB.textContent.indexOf(filterDB) > -1) &&
-                    (tdDE && tdDE.textContent.indexOf(filterDE) > -1)
+                    (tdDE && tdDE.textContent.indexOf(filterDE) > -1) &&
+                     (tdLevel && tdLevel.textContent.indexOf(filterLevel) > -1)
                 ) {
                     tr[i].style.display = ""; // Показываем строку
                     visibleRowCount++;
@@ -82,6 +85,7 @@
         <input type="text" id="filterOpisanie" oninput="filterTable()" placeholder="Описание конкурса">
         <input type="date" id="filterDB" oninput="filterTable()" placeholder="Дата подачи заявки">
         <input type="date" id="filterDE" oninput="filterTable()" placeholder="Дата результата">
+         <input type="text" id="filterLevel" oninput="filterTable()" placeholder="Уровень">
     </div>
 
     <table id="eventTable">
@@ -92,6 +96,7 @@
                 <th onclick="sortTable(2)">Описание</th>
                 <th onclick="sortTable(3)">Срок подачи</th>
                 <th onclick="sortTable(4)">Дата результата</th>
+                <th onclick="sortTable(5)">Уровень</th>
                 <th>Действия</th>
             </tr>
         </thead>
@@ -103,6 +108,7 @@
                 <td>{{ event[2] }}</td>
                 <td>{{ event[3] }}</td>
                 <td>{{ event[4] }}</td>
+                <td>{{ event[5] }}</td>
                 <td>
                     <!-- Иконка редактирования -->
                     <a href="{{ url_for('edit_event_inevent', id_event=event[0]) }}" class="edit-btn">
@@ -144,6 +150,13 @@
                 <label for="resultat_date">Дата результата:</label>
                 <input type="date" id="resultat_date" name="resultat_date" ><br>
                 <br><br>
+                <label for="level">Уровень</label>
+                <select id="level" name="level" required>
+                    {% for level in levels %}
+                    <option value="{{ level }}">{{ level }}</option>
+                    {% endfor %}
+                </select>
+                <br>
                 <br><br>
                 <input type="submit" value="Добавить">
                 <button type="button" class="cancel-button" onclick="closeModal();">Отмена</button> <!-- Кнопка Отмена -->

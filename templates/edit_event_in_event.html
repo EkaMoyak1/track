@@ -12,20 +12,32 @@
 
         <label name="name">Полное название конкурса:</label>
         <input type="string" id="name" name="name" value = "{{event[1]}}" required style="width: 100%;" required><br>
+        <br>
 
         <label for="opisanie">Короткое описание:</label>
         <input type="string" id="opisanie" name="opisanie" value = "{{event[2]}}" required><br>
+        <br>
 
         <label for="srok_podachi_date">Дата начала подачи заявки:</label>
         <input type="date" id="srok_podachi_date" name="srok_podachi_date" value = "{{event[3]}}"  ><br>
+        <br>
 
         <label for="result_date">Дата подведение итогов:</label>
         <input type="date" id="result_date" name="result_date" value = "{{event[4]}}"  ><br>
+        <br>
+
+        <label for="level">Уровень</label>
+            <select id="level" name="level" required>
+                {% for level in levels %}
+                <option value="{{ level }}" {% if level == event[5] %}selected{% endif %} >{{ level }}</option>
+                {% endfor %}
+            </select>
         <br>
         <br><br>
 
         <input type="submit" value="Сохранить">
         <button type="button" class="cancel-button" onclick="history.back();">Отмена</button> <!-- Кнопка Отмена -->
+        <br>
     </form>
 
 {% endblock %}
