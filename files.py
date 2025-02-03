@@ -195,11 +195,11 @@ def update_excel_template(user):
                 npp += 1
 
         # Сохраняем изменения в файл
-        workbook.save(file_path)
-        workbook.close()
+        # workbook.save(file_path)
+        # workbook.close()
 
-        return file_path
-
+        # return file_path
+        return  workbook
 if __name__ == '__main__':
     update_excel_template('admin')
 
