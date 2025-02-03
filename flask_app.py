@@ -3,6 +3,7 @@ from flask import Flask, render_template, redirect, url_for, request, flash, jso
 from flask import session
 import json
 import pandas as pd
+import io
 
 
 import load_data, files
@@ -186,6 +187,7 @@ def upload_file():
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
     return   jsonify({'saved_file_name': file_name, 'file_name': file.filename}), 200
 
+
 # запись в базу об участии в конкурсе
 @app.route('/save_data', methods=['POST'])
 def save_data():
@@ -364,10 +366,19 @@ def otchet():
         flash('Пользователь не авторизован.', 'error')
         return redirect(request.referrer or '/')
 
-    file_path = files.update_excel_template(user)
+    # file_path = files.update_excel_template(user)
+    #
+    # file_name ='output.xlsx'
+    # return send_file(file_path, as_attachment=True, download_name=file_name)
 
-    file_name ='output.xlsx'
-    return send_file(file_path, as_attachment=True, download_name=file_name)
+    # Генерация файла в памяти
+    output = io.BytesIO()
+    workbook = files.update_excel_template(user)  # Предположим, что это возвращает объект Workbook
+    workbook.save(output)
+    output.seek(0)
+
+    file_name = 'output.xlsx'
+    return send_file(output, as_attachment=True, download_name=file_name)
 
 
 
