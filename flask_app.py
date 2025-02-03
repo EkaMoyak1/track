@@ -4,12 +4,9 @@ from flask import session
 import json
 import pandas as pd
 import io
-
-
 import load_data, files
 import os
 from SQL import *
-
 
 app = Flask(__name__)
 
@@ -356,6 +353,8 @@ def delete_event(id_event):
     return redirect(url_for('events'))
 
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 ## Отчет
 @app.route('/otchet', methods=['GET'])

@@ -118,8 +118,12 @@ def update_excel_template(user):
         cursor_db.close()
         db_lp.close()
 
+        # Получаем абсолютный путь к файлу
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        template_path = os.path.join(base_dir, 'templates', 'Otchet_1.xlsx')
+
         # Открываем существующий файл Excel
-        workbook = openpyxl.load_workbook('templates\Otchet_1.xlsx')
+        workbook = openpyxl.load_workbook(template_path)
         sheet = workbook.active
 
         napr ={ n[0] for n in data}
@@ -200,6 +204,8 @@ def update_excel_template(user):
 
         # return file_path
         return  workbook
+
+
 if __name__ == '__main__':
     update_excel_template('admin')
 
