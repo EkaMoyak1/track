@@ -36,7 +36,10 @@ def update_excel_template(user, polugodie, year_1, year_2):
             JOIN teacher ON spisok_in_studio.pedagog = teacher.id
             JOIN events_table ON data_table.id_events_table = events_table.id
             WHERE
-                events_table.result_date BETWEEN ? AND ?
+                COALESCE(
+        NULLIF(data_table.date_otcheta, '0000-00-00'),
+        events_table.result_date
+    ) BETWEEN ? AND ?
                 AND data_table.result != ' '
         '''
         if user != 'admin':

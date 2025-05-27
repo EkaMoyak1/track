@@ -364,17 +364,17 @@ def delete_event(id_event):
 
 
 ## Отчет
-@app.route('/otchet', methods=['GET'])
-def otchet():
+@app.route('/otchet/<int:period>', methods=['GET'])
+def otchet(period):
     user = session.get('username')
 
     if not user:
         flash('Пользователь не авторизован.', 'error')
         return redirect(request.referrer or '/')
-    polugodie = 2
+
     year_1 = session.get('year_1')
     year_2 = session.get('year_2')
-    file_path = files.update_excel_template(user, polugodie, year_1, year_2)
+    file_path = files.update_excel_template(user, period, year_1, year_2)
 
     file_name ='output.xlsx'
     return send_file(file_path, as_attachment=True, download_name=file_name)

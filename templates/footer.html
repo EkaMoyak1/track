@@ -6,7 +6,9 @@
         <div class="footer-right">
             <div>
                 <p>Отчеты</p>
-                <a href="{{ url_for('otchet') }}">Выгрузка</a>
+                <a href="{{ url_for('otchet', period=0) }}">Выгрузка за год</a>
+                <a href="{{ url_for('otchet', period=1) }}">Выгрузка за 1 полугодие</a>
+                <a href="{{ url_for('otchet', period=2) }}">Выгрузка за 2 полугодие</a>
             </div>
             <div>
                 <p>Настройки</p>
