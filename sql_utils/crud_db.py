@@ -280,3 +280,30 @@ def add_super_user():
     conn.commit()
     conn.close()
 
+
+def get_user_year_settings(username):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    # Выбираем самую свежую запись для пользователя
+    cursor.execute("""
+         SELECT year_1, year_2 FROM user_settings
+         WHERE user=?
+         ORDER BY id DESC
+         LIMIT 1
+     """, (username,))
+    result = cursor.fetchone()
+    conn.close()
+    if result:
+        return result[0], result[1]
+    return 2024, 2025  # значения по умолчанию
+
+
+def set_user_year_settings(username, year_1, year_2):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT OR REPLACE INTO user_settings (user, year_1, year_2)
+        VALUES (?, ?, ?)
+    """, (username, year_1, year_2))
+    conn.commit()
+    conn.close()

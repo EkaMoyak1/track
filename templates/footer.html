@@ -11,6 +11,8 @@
             <div>
                 <p>Настройки</p>
                 <a href="{{ url_for('index') }}">Изменить пароль</a>
+                <a href="{{ url_for('set_year_form') }}">Учебный год: {{ session.year_1 }}–{{ session.year_2 }}</a>
+
             </div>
             <div>
                 <p>Справочники</p>
@@ -21,22 +23,5 @@
             </div>
         </div>
     </div>
-    <script>
-        document.getElementById('downloadLink').addEventListener('click', function(event) {
-            event.preventDefault();
-            fetch('/otchet')
-                .then(response => response.blob())
-                .then(blob => {
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = url;
-                    a.download = 'report.xlsx';  // Имя файла, который будет сохранен
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                })
-                .catch(error => console.error('Ошибка при скачивании файла:', error));
-        });
-    </script>
+
 </footer>
