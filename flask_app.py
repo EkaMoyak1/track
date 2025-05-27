@@ -7,8 +7,8 @@ import pandas as pd
 
 import load_data, files
 import os
-from SQL import *
-
+# from SQL import *
+from sql_utils import *
 
 app = Flask(__name__)
 
@@ -19,6 +19,7 @@ docs =[' ', 'Сертификат участника',
         'Диплом 1 степени',
         'Диплом 2 степени',
         'Диплом 3 степени',
+        'Диплом финалиста',
         'Лауреат',
         'Лауреат 1 степени',
         'Лауреат 2 степени',
