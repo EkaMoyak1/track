@@ -93,6 +93,15 @@ def create_tables():
     cursor_db.execute(sql_create)
     db_lp.commit()
 
+    sql_create = '''CREATE TABLE IF NOT EXISTS user_settings (
+                    id TEXT PRIMARY KEY,
+                    year_1 INTEGER DEFAULT 2024,
+                    year_2 INTEGER DEFAULT 2025
+                     );'''
+
+    cursor_db.execute(sql_create)
+    db_lp.commit()
+
     cursor_db.close()
     db_lp.close()
 
@@ -110,21 +119,33 @@ def show_tbl(table):
     db_lp.close()
     print(tbl)
 
+
 def drop_table(name):
     db_lp = sqlite3.connect('date_source.db')
     cursor_db = db_lp.cursor()
-    # Удаление всех записей из таблицы data_table
-    sql_delete_all = 'DELETE FROM data_table;'
-    cursor_db.execute(sql_delete_all)
 
-    # Подтверждение изменений
-    db_lp.commit()
+    try:
+        # Удаление всей таблицы
+        cursor_db.execute(f"DROP TABLE IF EXISTS {name};")
+        db_lp.commit()
+        print(f"Таблица '{name}' успешно удалена.")
+    except Exception as e:
+        print(f"Ошибка при удалении таблицы '{name}': {e}")
+    finally:
+        db_lp.close()
 
-    # Закрытие соединения с базой данных
-    db_lp.close()
+def clear_table(name):
+    db_lp = sqlite3.connect('date_source.db')
+    cursor_db = db_lp.cursor()
 
-
-import pandas as pd
+    try:
+        cursor_db.execute(f"DELETE FROM {name};")
+        db_lp.commit()
+        print(f"Данные из таблицы '{name}' успешно удалены.")
+    except Exception as e:
+        print(f"Ошибка при очистке таблицы '{name}': {e}")
+    finally:
+        db_lp.close()
 
 
 def add_column_to_table(table_name, column_name, column_type):
@@ -152,77 +173,21 @@ def add_column_to_table(table_name, column_name, column_type):
     db_lp.close()
 
 def test():
-    user = 'admin'
+
     db_lp = sqlite3.connect('date_source.db')
     cursor_db = db_lp.cursor()
-    text = '''
-                       SELECT
-                    spisok_in_studio.napravlenie,
-                    teacher.FIO AS teacher_name,
-                    SUM(CASE WHEN events_table.level = 'Центровский' AND data_table.result = 'Сертификат участника' THEN 1 ELSE 0 END) AS c1,
-                    SUM(CASE WHEN events_table.level = 'Центровский' AND data_table.result != 'Сертификат участника' THEN 1 ELSE 0 END) AS c2,
-                    SUM(CASE WHEN events_table.level = 'Городской' AND data_table.result = 'Сертификат участника' THEN 1 ELSE 0 END) AS c3,
-                    SUM(CASE WHEN events_table.level = 'Городской' AND data_table.result != 'Сертификат участника' THEN 1 ELSE 0 END) AS c4,
-                    SUM(CASE WHEN events_table.level = 'Районный' AND data_table.result = 'Сертификат участника' THEN 1 ELSE 0 END) AS c3,
-                    SUM(CASE WHEN events_table.level = 'Районный' AND data_table.result != 'Сертификат участника' THEN 1 ELSE 0 END) AS c4,
-                    SUM(CASE WHEN events_table.level = 'Республиканский' AND data_table.result = 'Сертификат участника' THEN 1 ELSE 0 END) AS c5,
-                    SUM(CASE WHEN events_table.level = 'Республиканский' AND data_table.result != 'Сертификат участника' THEN 1 ELSE 0 END) AS c6,
-                    SUM(CASE WHEN events_table.level = 'Региональный' AND data_table.result = 'Сертификат участника' THEN 1 ELSE 0 END) AS c5,
-                    SUM(CASE WHEN events_table.level = 'Региональный' AND data_table.result != 'Сертификат участника' THEN 1 ELSE 0 END) AS c6,
-                    SUM(CASE WHEN events_table.level = 'Межрегиональный' AND data_table.result = 'Сертификат участника' THEN 1 ELSE 0 END) AS c5,
-                    SUM(CASE WHEN events_table.level = 'Межрегиональный' AND data_table.result != 'Сертификат участника' THEN 1 ELSE 0 END) AS c6,
-                    SUM(CASE WHEN events_table.level = 'Всероссийский' AND data_table.result = 'Сертификат участника' THEN 1 ELSE 0 END) AS c5,
-                    SUM(CASE WHEN events_table.level = 'Всероссийский' AND data_table.result != 'Сертификат участника' THEN 1 ELSE 0 END) AS c6,
-                    SUM(CASE WHEN events_table.level = 'Международный' AND data_table.result = 'Сертификат участника' THEN 1 ELSE 0 END) AS c5,
-                    SUM(CASE WHEN events_table.level = 'Международный' AND data_table.result != 'Сертификат участника' THEN 1 ELSE 0 END) AS c6
-                FROM
-                    data_table
-                JOIN spisok ON data_table.id_spisok = spisok.id
-                JOIN spisok_in_studio ON data_table.id_spisok_in_studio = spisok_in_studio.id
-                JOIN teacher ON spisok_in_studio.pedagog = teacher.id
-                JOIN events_table ON data_table.id_events_table = events_table.id
-                WHERE  (events_table.result_date BETWEEN ? AND ?)  and  data_table.result != ' '
-                '''
-    if user!='admin':
-       text += ''' 
-       and teacher.FIO = ? 
-       '''
+    sql_create = '''CREATE TABLE IF NOT EXISTS user_settings (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user TEXT,
+                    year_1 INTEGER DEFAULT 2024,
+                    year_2 INTEGER DEFAULT 2025
+                     );'''
 
-    text += '''
-                GROUP BY
-                    spisok_in_studio.napravlenie, teacher_name
-                ORDER BY
-                    spisok_in_studio.napravlenie, teacher_name;
+    cursor_db.execute(sql_create)
+    db_lp.commit()
 
-            '''
-
-    if user != 'admin':
-        cursor_db.execute(text, ('2025-01-01', '2025-12-31', user))
-    else:
-        cursor_db.execute(text, ('2025-01-01', '2025-12-31'))
-    # WHERE
-    # events_table.result_date
-    # BETWEEN
-    # '2025-01-01'
-    # AND
-    # '2025-12-31' and not (events_table.level = '' or events_table.level = NULL)
-
-    # Извлечение данных
-    data = cursor_db.fetchall()
-    columns = [description[0] for description in cursor_db.description]
-    print(data)
-    # Закрытие соединения с базой данных
     cursor_db.close()
     db_lp.close()
-
-
-    # # Создание DataFrame
-    # df = pd.DataFrame(data, columns=columns)
-    #
-    # # Сохранение в Excel
-    # df.to_excel('output.xlsx', index=False)
-    #
-    # print("Данные успешно сохранены в файл output.xlsx")
 
 if __name__ == '__main__':
     # create_tables()1
@@ -248,6 +213,7 @@ if __name__ == '__main__':
         print('6 - spr_studya')
         print('7 - studyas_in_napravlenie')
         print('8 - teacher')
+        print('9 - user_settings')
         tab = int(input('выберите таблицу '))
         name=''
         if tab == 1:
@@ -266,11 +232,24 @@ if __name__ == '__main__':
             name = 'studyas_in_napravlenie'
         elif tab == 8:
             name = 'teacher'
+        elif tab == 9:
+            name = 'user_settings'
 
         if rej==1:
             show_tbl(name)
         elif rej==2:
-            r = input(' Вы уверены очистить все данные? (Y/N) ')
-            if r == 'Y':
-                drop_table(name)
+            print("Выберите действие:")
+            print("1 - Очистить данные в таблице (DELETE)")
+            print("2 - Удалить таблицу полностью (DROP)")
+            action = int(input("Введите номер действия: "))
+
+            if action == 1:
+                confirm = input("Вы уверены, что хотите очистить данные? (Y/N): ")
+                if confirm == 'Y':
+                    clear_table(name)
+
+            elif action == 2:
+                confirm = input(f"Вы уверены, что хотите удалить таблицу '{name}'? Это действие необратимо! (Y/N): ")
+                if confirm == 'Y':
+                    drop_table(name)
 

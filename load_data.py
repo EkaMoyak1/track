@@ -2,7 +2,8 @@ import pandas as pd
 import sqlite3
 import os
 import create_bd
-import SQL
+# import SQL
+import sql_utils.user_db as SQL
 from datetime import datetime
 
 

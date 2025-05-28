@@ -7,8 +7,8 @@ import pandas as pd
 
 import load_data, files
 import os
-from SQL import *
-
+# from SQL import *
+from sql_utils import *
 
 app = Flask(__name__)
 
@@ -19,6 +19,7 @@ docs =[' ', 'Сертификат участника',
         'Диплом 1 степени',
         'Диплом 2 степени',
         'Диплом 3 степени',
+        'Диплом финалиста',
         'Лауреат',
         'Лауреат 1 степени',
         'Лауреат 2 степени',
@@ -33,6 +34,13 @@ app.secret_key = os.urandom(24)
 def before_request():
     if 'username' not in session and request.endpoint not in ['login', 'static']:
         return redirect(url_for('login'))
+
+    if 'username' in session and request.endpoint not in ['login', 'static']:
+        username = session['username']
+        year_1, year_2 = get_user_year_settings(username)
+        session['year_1'] = year_1
+        session['year_2'] = year_2
+        session.modified = True
 
 @app.route('/protected')
 def protected():
@@ -356,19 +364,44 @@ def delete_event(id_event):
 
 
 ## Отчет
-@app.route('/otchet', methods=['GET'])
-def otchet():
+@app.route('/otchet/<int:period>', methods=['GET'])
+def otchet(period):
     user = session.get('username')
 
     if not user:
         flash('Пользователь не авторизован.', 'error')
         return redirect(request.referrer or '/')
 
-    file_path = files.update_excel_template(user)
+    year_1 = session.get('year_1')
+    year_2 = session.get('year_2')
+    file_path = files.update_excel_template(user, period, year_1, year_2)
 
     file_name ='output.xlsx'
     return send_file(file_path, as_attachment=True, download_name=file_name)
 
+
+@app.route('/set_year', methods=['POST'])
+def set_year():
+    try:
+        year_1 = int(request.form.get('year_1'))
+        year_2 = int(request.form.get('year_2'))
+
+        if year_2 != year_1 + 1:
+            flash("Годы должны быть последовательными!", "error")
+        else:
+            session['year_1'] = year_1
+            session['year_2'] = year_2
+            set_user_year_settings(session['username'], year_1, year_2)
+            flash(f"Учебный год изменен: {year_1}–{year_2}", "success")
+    except:
+        flash("Некорректные значения годов.", "error")
+
+    return redirect(url_for('index'))
+
+
+@app.route('/set_year_form')
+def set_year_form():
+    return render_template('set_year.html')
 
 
 UPLOAD_FOLDER = 'static/load/'
