@@ -6,11 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="70364b84-829a-4296-9f41-64e8f0f50cb9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/create_bd.py" beforeDir="false" afterPath="$PROJECT_DIR$/create_bd.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/date_source.db" beforeDir="false" afterPath="$PROJECT_DIR$/date_source.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/files.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/flask_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/flask_app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/child_profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/child_profile.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/footer.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/footer.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sql_utils/child_list_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/sql_utils/child_list_db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sql_utils/crud_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/sql_utils/crud_db.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

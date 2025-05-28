@@ -92,14 +92,72 @@ def get_children_list(user, filter_flag=False, group_by=False, event_id=None):
         group_by=group_by_clause
     )
 
-    print("Final query:", query)
-    print("Params:", params)
+    # print("Final query:", query)
+    # print("Params:", params)
 
     cursor.execute(query, params)
     children = cursor.fetchall()
     conn.close()
     return children
 
+def get_children_list_simple(filter_flag=False, event_id=None):
+    """
+    Получение списка детей из таблицы spisok с вычислением возраста
+    :param user: пользователь (не используется)
+    :param filter_flag: флаг — участвовали ли в конкурсах
+    :param event_id: фильтр по конкурсу
+    :return: список детей
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    base_query = """
+        SELECT 
+            spisok.id,
+            spisok.fio,
+            spisok.date_bd,
+            (strftime('%Y', 'now') - strftime('%Y', spisok.date_bd)) - 
+            (strftime('%m-%d', 'now') < strftime('%m-%d', spisok.date_bd)) AS age
+        FROM spisok  
+        {joins}
+        {where}
+        ORDER BY spisok.fio
+    """
+
+    joins = ""
+    where_clause = ""
+    params = []
+
+    if filter_flag:
+        joins = "JOIN data_table ON data_table.id_spisok = spisok.id"
+        if event_id:
+            joins += " JOIN events_table ON data_table.id_events_table = events_table.id"
+            where_clause = " WHERE events_table.id = ?"
+            params.append(event_id)
+
+    elif event_id:
+        joins = """
+            JOIN data_table ON data_table.id_spisok = spisok.id
+            JOIN events_table ON data_table.id_events_table = events_table.id
+        """
+        where_clause = " WHERE events_table.id = ?"
+        params.append(event_id)
+
+    query = base_query.format(joins=joins, where=where_clause)
+
+    cursor.execute(query, params)
+    children = cursor.fetchall()
+    conn.close()
+    return children
+
+# # Получить всех детей без фильтрации
+# all_children = get_children_list_simple()
+#
+# # Получить детей, участвующих в каких-либо конкурсах
+# filtered_children = get_children_list_simple(filter_flag=True)
+#
+# # Получить детей, участвующих в конкурсе с id=5
+# children_in_event_5 = get_children_list_simple(event_id=5)
 
 # Сохраняем все алиасы для совместимости
 def get_child_by_spisok():
