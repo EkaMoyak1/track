@@ -170,11 +170,25 @@
             {% endfor %}
         ];
 
-        // Генерация уникального имени файла
-        document.getElementById('saved_file_name').value = 'file_' + Date.now() + '_' + Math.floor(Math.random() * 1000); // без расширения
+
 
         document.getElementById('fileInput').addEventListener('change', function() {
         var formData = new FormData(document.getElementById('editForm'));
+
+        const file = this.files[0];
+        if (!file) {
+            // Если файл не выбран — очистить поля
+            document.getElementById('saved_file_name').value = '';
+            document.getElementById('original_file_name').value = '';
+            document.getElementById('file-name-display').textContent = '';
+            document.getElementById('remove-file-btn').style.display = 'none';
+            return;
+        }
+
+        // Генерируем уникальное имя файла (без расширения)
+        const fileExt = file.name.split('.').pop();
+        const uniqueFileName = 'file_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+
 
         // Показать прогресс-бар
         document.getElementById('progress').style.display = 'block';
@@ -322,6 +336,12 @@
         }
 
         function removeFile() {
+         document.getElementById('fileInput').value = ''; // Сбросить выбор файла
+        document.getElementById('saved_file_name').value = ''; // Очистить сохранённое имя
+        document.getElementById('original_file_name').value = ''; // Очистить оригинальное имя
+        document.getElementById('file-name-display').textContent = ''; // Убрать отображение
+        document.getElementById('remove-file-btn').style.display = 'none'; // Скрыть кнопку
+
         // Очищаем имя файла и скрываем кнопку удаления
         document.getElementById('file-name-display').textContent = "";
         document.getElementById('remove-file-btn').style.display = 'none';
