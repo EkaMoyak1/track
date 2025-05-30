@@ -99,15 +99,107 @@ def spisok():
     return render_template('spisok.html', children=children, show_load_button=show_load_button)
 
 # СПИСОК детей в конкурсе
-@app.route('/spisok_in_event/<int:event>')
-def spisok_in_event(event):
-    print('f')
-    if session['username'] == 'admin':
-        show_load_button = True
-    else:
-        show_load_button = False
-    children = get_child_by_spisok_1(session['username'], event)  # Получаем список детей из базы данных
-    return render_template('spisok_event.html', children=children, show_load_button=show_load_button)
+@app.route('/spisok_in_event/<int:event_id>')
+def spisok_in_event(event_id):
+    # Получаем информацию о конкурсе
+    event = get_events_by_id(event_id)
+
+    # Получаем участников конкурса
+    children = get_children_list_from_event(session['username'], event_id=event_id)
+
+
+    return render_template(
+        'spisok_event.html',
+        event_name=event[1],
+        event_id=event_id,
+        children=children)
+
+@app.route('/available_children')
+def available_children():
+    user = session.get('username')
+    if not user:
+        return jsonify({'success': False, 'message': 'Пользователь не авторизован'}), 401
+
+    children = get_children_list(user)
+
+    result = []
+    for child in children:
+        if isinstance(child, sqlite3.Row):
+            child = dict(child)  # Преобразуем Row в словарь
+
+        result.append({
+            'id': child.get('id_in_studya'),
+            'fio': child.get('fio'),
+            'studya': child.get('studya'),
+            'pedagog': child.get('pedagog'),
+            'id_spisok': child.get('id_in_spisok')
+
+        })
+
+    return jsonify(result)
+
+
+@app.route('/event/<int:event_id>/add', methods=['POST'])
+def add_to_event(event_id):
+    if request.method != 'POST':
+        return jsonify({'success': False, 'message': 'Метод не поддерживается'}), 405
+
+    try:
+        data = request.get_json()
+        children_ids = data.get('children', [])
+
+        if not children_ids:
+            return jsonify({'success': False, 'message': 'Не выбран ни один участник'}), 400
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Проверяем, существует ли конкурс
+        cursor.execute("SELECT 1 FROM events_table WHERE id = ?", (event_id,))
+        if not cursor.fetchone():
+            return jsonify({'success': False, 'message': 'Конкурс не найден'}), 404
+
+        added_count = 0
+        for child_id in children_ids:
+            # Проверяем, существует ли ребенок
+            cursor.execute("SELECT 1 FROM spisok_in_studio WHERE id = ?", (child_id,))
+            if not cursor.fetchone():
+                continue  # Пропускаем несуществующих детей
+
+            data_add = []
+            save_in_date_table(data_add)
+            added_count += 1
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'added': added_count,
+            'message': f'Успешно добавлено {added_count} участников'
+        })
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'message': f'Ошибка при добавлении: {str(e)}'}), 500
+
+
+# Удаление участника из конкурса
+@app.route('/event/<int:event_id>/remove/<int:id>')
+def remove_from_event(event_id, id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            DELETE FROM data_table 
+            WHERE id = ? 
+        """, (id,))
+        conn.commit()
+        conn.close()
+        flash('Участник удален из конкурса', 'success')
+    except Exception as e:
+        flash(f'Ошибка: {str(e)}', 'error')
+    return redirect(url_for('spisok_in_event', event_id=event_id))
 
 
 @app.route('/karta')
@@ -316,7 +408,7 @@ def delete_child(child_id):
     # delete_in_spisok(child_id)
     delete_in_spisok_in_studya(child_id)
     children = get_children(session['username'])
-    print(children)
+
     return render_template('spisok.html', children=children, show_load_button=False)
 
 
@@ -326,7 +418,7 @@ def delete_child(child_id):
 @app.route('/events')
 def events():
     events_t = get_events()
-    print('1')
+
     return render_template('events.html', events=events_t, levels=levels)
 
 
@@ -399,82 +491,6 @@ def set_year():
 def set_year_form():
     return render_template('set_year.html')
 
-
-@app.route('/available_children')
-def available_children():
-    user = session.get('username')
-    if not user:
-        return jsonify({'success': False, 'message': 'Пользователь не авторизован'}), 401
-
-    children = get_children_list(user)
-
-    result = []
-    for child in children:
-        if isinstance(child, sqlite3.Row):
-            child = dict(child)  # Преобразуем Row в словарь
-
-        result.append({
-            'id': child.get('id'),
-            'fio': child.get('fio'),
-            'studio': child.get('studio_name'),
-            'teacher': child.get('teacher_name')
-        })
-
-    return jsonify(result)
-
-
-@app.route('/event/<int:event_id>/add', methods=['POST'])
-def add_to_event(event_id):
-    if request.method != 'POST':
-        return jsonify({'success': False, 'message': 'Метод не поддерживается'}), 405
-
-    try:
-        data = request.get_json()
-        children_ids = data.get('children', [])
-
-        if not children_ids:
-            return jsonify({'success': False, 'message': 'Не выбран ни один участник'}), 400
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # Проверяем, существует ли конкурс
-        cursor.execute("SELECT 1 FROM events_table WHERE id = ?", (event_id,))
-        if not cursor.fetchone():
-            return jsonify({'success': False, 'message': 'Конкурс не найден'}), 404
-
-        added_count = 0
-        for child_id in children_ids:
-            # Проверяем, существует ли ребенок
-            cursor.execute("SELECT 1 FROM spisok WHERE id = ?", (child_id,))
-            if not cursor.fetchone():
-                continue  # Пропускаем несуществующих детей
-
-            # Проверяем, не участвует ли уже ребенок в этом конкурсе
-            cursor.execute("""
-                SELECT 1 FROM data_table 
-                WHERE id_events_table = ? AND id_spisok = ?
-            """, (event_id, child_id))
-
-            if not cursor.fetchone():
-                cursor.execute("""
-                    INSERT INTO data_table (id_events_table, id_spisok)
-                    VALUES (?, ?)
-                """, (event_id, child_id))
-                added_count += 1
-
-        conn.commit()
-        conn.close()
-
-        return jsonify({
-            'success': True,
-            'added': added_count,
-            'message': f'Успешно добавлено {added_count} участников'
-        })
-
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'success': False, 'message': f'Ошибка при добавлении: {str(e)}'}), 500
 
 UPLOAD_FOLDER = 'static/load/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER

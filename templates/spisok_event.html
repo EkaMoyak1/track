@@ -45,8 +45,6 @@
             <tr>
                 <th>№</th>
                 <th>ФИО</th>
-                <th>Дата рождения</th>
-                <th>Возраст</th>
                 <th>Студия</th>
                 <th>Педагог</th>
                 <th>Действия</th>
@@ -56,16 +54,14 @@
             {% for child in children %}
             <tr>
                 <td>{{ loop.index }}</td>
-                <td>{{ child[1] }}</td>
                 <td>{{ child[2] }}</td>
-                <td>{{ child[3] }}</td>
-                <td>{{ child[5] }}</td>
-                <td>{{ child[6] }}</td>
+                <td>{{ child[4] }}</td>
+                <td>{{ child[7] }}</td>
                 <td>
-                    <a href="{{ url_for('remove_from_event', event_id=event_id, child_id=child[0]) }}"
+                    <a href="{{ url_for('remove_from_event', event_id=event_id, id=child[0]) }}"
                        class="delete-btn"
                        onclick="return confirm('Удалить участника из конкурса?')">
-                        <img src="{{ url_for('static', filename='img/del.png') }}" alt="Удалить">
+                        <img src="{{ url_for('static', filename='img/del.png') }}" alt="Удалить" style="width: 24px; height: 24px;">
                     </a>
                 </td>
             </tr>

@@ -17,3 +17,6 @@ tmp/
 date_source.db
 
 /__pycache__
+/.idea
+/__pycache__
+date_source.db

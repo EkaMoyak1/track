@@ -159,6 +159,67 @@ def get_children_list_simple(filter_flag=False, event_id=None):
 # # Получить детей, участвующих в конкурсе с id=5
 # children_in_event_5 = get_children_list_simple(event_id=5)
 
+def get_children_list_from_event(user, filter_flag=False, event_id=None):
+    """
+    Get list of children with studio and teacher information
+    :param user: User making the request
+    :param filter_flag: Whether to filter children with events
+    :param event_id: Optional event ID to filter by
+    :return: List of children with their studio and teacher info
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    base_query = """
+        SELECT 
+            data_table.id as data_table_id,
+            spisok.id as child_id,
+            spisok.fio as child_name,
+            spisok_in_studio.id as studio_record_id,
+            spr_studya.name as studio_name,
+            data_table.id_events_table as event_id,
+            spisok_in_studio.pedagog as teacher_id,
+            teacher.fio as teacher_name
+        FROM data_table
+        JOIN spisok_in_studio ON data_table.id_spisok_in_studio = spisok_in_studio.id
+        JOIN spisok ON spisok_in_studio.id_spisok = spisok.id
+        JOIN spr_studya ON spisok_in_studio.studio = spr_studya.id
+        {teacher_join} teacher ON spisok_in_studio.pedagog = teacher.id
+        {where}
+        ORDER BY spisok.fio, spr_studya.name
+    """
+
+    where_clause = ""
+    params = []
+
+    if user != 'admin':
+        where_clause = "WHERE teacher.fio = ?"
+        params.append(user)
+
+    if event_id:
+        if where_clause:
+            where_clause += " AND data_table.id_events_table = ?"
+        else:
+            where_clause = "WHERE data_table.id_events_table = ?"
+        params.append(event_id)
+
+    if filter_flag:
+        filter_condition = "data_table.id IS NOT NULL"
+        if where_clause:
+            where_clause += f" AND {filter_condition}"
+        else:
+            where_clause = f"WHERE {filter_condition}"
+
+    query = base_query.format(
+        teacher_join="LEFT JOIN" if user == 'admin' else "JOIN",
+        where=where_clause
+    )
+
+    cursor.execute(query, params)
+    children = cursor.fetchall()
+    conn.close()
+    return children
+
 # Сохраняем все алиасы для совместимости
 def get_child_by_spisok():
     return get_children_list(user='admin')
