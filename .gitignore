@@ -4,8 +4,15 @@
 .venv/
 venv/
 
+.idea/
+idea/
+
 # Ignore other common files
 __pycache__/
 *.py[cod]
 
+.tmp/
+tmp/
+
+date_source.db
 
