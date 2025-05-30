@@ -3,9 +3,10 @@ import SQL
 
 def create_tables():
     db_lp = sqlite3.connect('date_source.db')
+    db_lp.execute("PRAGMA foreign_keys = ON")  # Включаем внешние ключи
     cursor_db = db_lp.cursor()
 
-    # Создаем новую таблицу spisok - весь список детей
+    # spisok - список детей
     sql_create_spisok = '''
     CREATE TABLE IF NOT EXISTS spisok (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,7 +18,7 @@ def create_tables():
     cursor_db.execute(sql_create_spisok)
     db_lp.commit()
 
-    # Создаем новую таблицу spisok_in_studio - дети в студиях
+    # spisok_in_studio - дети в студиях
     sql_create_spisok_in_studio = '''
     CREATE TABLE IF NOT EXISTS spisok_in_studio (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,86 +26,106 @@ def create_tables():
         napravlenie INTEGER NOT NULL,
         studio INTEGER NOT NULL,
         pedagog INTEGER NOT NULL,
-        FOREIGN KEY (id_spisok) REFERENCES spisok(id)
+        FOREIGN KEY (id_spisok) REFERENCES spisok(id) ON DELETE RESTRICT,
+        FOREIGN KEY (napravlenie) REFERENCES spr_napravlenie(id) ON DELETE RESTRICT,
+        FOREIGN KEY (studio) REFERENCES spr_studya(id) ON DELETE RESTRICT,
+        FOREIGN KEY (pedagog) REFERENCES teacher(id) ON DELETE RESTRICT
     );
     '''
     cursor_db.execute(sql_create_spisok_in_studio)
     db_lp.commit()
 
-    # Справочник конкурсов
-    sql_create = '''CREATE TABLE if NOT exists events_table(
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT NOT NULL,
-                    opisanie TEXT,
-                    srok_podachi_date DATE,
-                    result_date DATE,
-                    level TEXT
-                    );'''
-
-    cursor_db.execute(sql_create)
+    # events_table - справочник конкурсов
+    sql_create_events_table = '''
+    CREATE TABLE IF NOT EXISTS events_table (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        opisanie TEXT,
+        srok_podachi_date DATE,
+        result_date DATE,
+        level TEXT
+    );
+    '''
+    cursor_db.execute(sql_create_events_table)
     db_lp.commit()
 
-    # Участие детей в конкурсах
-    sql_create = '''CREATE TABLE if NOT exists data_table(
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    id_spisok int NOT NULL,
-                    id_spisok_in_studio INTEGER NOT NULL,
-                    id_events_table int NOT NULL,
-                    result TEXT,
-                    original_name TEXT,
-                    file TEXT,
-                    date_otcheta DATE
-                    );'''
-
-    cursor_db.execute(sql_create)
+    # data_table - участие детей в конкурсах
+    sql_create_data_table = '''
+    CREATE TABLE IF NOT EXISTS data_table (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id_spisok INTEGER NOT NULL,
+        id_spisok_in_studio INTEGER NOT NULL,
+        id_events_table INTEGER NOT NULL,
+        result TEXT,
+        original_name TEXT,
+        file TEXT,
+        date_otcheta DATE,
+        FOREIGN KEY (id_spisok) REFERENCES spisok(id) ON DELETE RESTRICT,
+        FOREIGN KEY (id_spisok_in_studio) REFERENCES spisok_in_studio(id) ON DELETE RESTRICT,
+        FOREIGN KEY (id_events_table) REFERENCES events_table(id) ON DELETE RESTRICT
+    );
+    '''
+    cursor_db.execute(sql_create_data_table)
     db_lp.commit()
 
-    sql_create = '''CREATE TABLE if NOT exists spr_napravlenie(
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT NOT NULL
-                     );'''
-
-    cursor_db.execute(sql_create)
+    # spr_napravlenie - справочник направлений
+    sql_create_spr_napravlenie = '''
+    CREATE TABLE IF NOT EXISTS spr_napravlenie (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE
+    );
+    '''
+    cursor_db.execute(sql_create_spr_napravlenie)
     db_lp.commit()
 
-    sql_create = '''CREATE TABLE if NOT exists spr_studya(
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT NOT NULL
-                     );'''
-
-    cursor_db.execute(sql_create)
+    # spr_studya - справочник студий
+    sql_create_spr_studya = '''
+    CREATE TABLE IF NOT EXISTS spr_studya (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE
+    );
+    '''
+    cursor_db.execute(sql_create_spr_studya)
     db_lp.commit()
 
-    sql_create = '''CREATE TABLE if NOT exists studyas_in_napravlenie(
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    id_studya int NOT NULL,
-                    id_napravlenie int NOT NULL
-                     );'''
-
-    cursor_db.execute(sql_create)
+    # studyas_in_napravlenie - связь студий и направлений
+    sql_create_studyas_in_napravlenie = '''
+    CREATE TABLE IF NOT EXISTS studyas_in_napravlenie (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id_studya INTEGER NOT NULL,
+        id_napravlenie INTEGER NOT NULL,
+        UNIQUE(id_studya, id_napravlenie),
+        FOREIGN KEY (id_studya) REFERENCES spr_studya(id) ON DELETE CASCADE,
+        FOREIGN KEY (id_napravlenie) REFERENCES spr_napravlenie(id) ON DELETE CASCADE
+    );
+    '''
+    cursor_db.execute(sql_create_studyas_in_napravlenie)
     db_lp.commit()
 
-    sql_create = '''CREATE TABLE if NOT exists teacher(
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    FIO TEXT NOT NULL UNIQUE,
-                    password TEXT NOT NULL
-                     );'''
-
-    cursor_db.execute(sql_create)
+    # teacher - педагоги
+    sql_create_teacher = '''
+    CREATE TABLE IF NOT EXISTS teacher (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        FIO TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL
+    );
+    '''
+    cursor_db.execute(sql_create_teacher)
     db_lp.commit()
 
-    sql_create = '''CREATE TABLE IF NOT EXISTS user_settings (
-                    id TEXT PRIMARY KEY,
-                    year_1 INTEGER DEFAULT 2024,
-                    year_2 INTEGER DEFAULT 2025
-                     );'''
-
-    cursor_db.execute(sql_create)
+    # user_settings - настройки пользователей
+    sql_create_user_settings = '''
+    CREATE TABLE IF NOT EXISTS user_settings (
+        id TEXT PRIMARY KEY,
+        year_1 INTEGER DEFAULT 2024,
+        year_2 INTEGER DEFAULT 2025
+    );
+    '''
+    cursor_db.execute(sql_create_user_settings)
     db_lp.commit()
 
     cursor_db.close()
     db_lp.close()
-
 
 
 def show_tbl(table):

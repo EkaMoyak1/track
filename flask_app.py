@@ -27,7 +27,7 @@ docs =[' ', 'Сертификат участника',
 
 levels = [' ', 'Центровский', 'Городской', 'Районный', 'Республиканский', 'Региональный', 'Межрегиональный', 'Всероссийский', 'Международный']
 # Функция для получения данных о конкретном ребенке по ID
-
+setup_db()
 app.secret_key = os.urandom(24)
 
 @app.before_request
@@ -99,14 +99,107 @@ def spisok():
     return render_template('spisok.html', children=children, show_load_button=show_load_button)
 
 # СПИСОК детей в конкурсе
-@app.route('/spisok_in_event/<int:event>')
-def spisok_in_event(event):
-    if session['username'] == 'admin':
-        show_load_button = True
-    else:
-        show_load_button = False
-    children = get_child_by_spisok_1(session['username'], event)  # Получаем список детей из базы данных
-    return render_template('spisok.html', children=children, show_load_button=show_load_button)
+@app.route('/spisok_in_event/<int:event_id>')
+def spisok_in_event(event_id):
+    # Получаем информацию о конкурсе
+    event = get_events_by_id(event_id)
+
+    # Получаем участников конкурса
+    children = get_children_list_from_event(session['username'], event_id=event_id)
+
+
+    return render_template(
+        'spisok_event.html',
+        event_name=event[1],
+        event_id=event_id,
+        children=children)
+
+@app.route('/available_children')
+def available_children():
+    user = session.get('username')
+    if not user:
+        return jsonify({'success': False, 'message': 'Пользователь не авторизован'}), 401
+
+    children = get_children_list(user)
+
+    result = []
+    for child in children:
+        if isinstance(child, sqlite3.Row):
+            child = dict(child)  # Преобразуем Row в словарь
+
+        result.append({
+            'id': child.get('id_in_studya'),
+            'fio': child.get('fio'),
+            'studya': child.get('studya'),
+            'pedagog': child.get('pedagog'),
+            'id_spisok': child.get('id_in_spisok')
+
+        })
+
+    return jsonify(result)
+
+
+@app.route('/event/<int:event_id>/add', methods=['POST'])
+def add_to_event(event_id):
+    if request.method != 'POST':
+        return jsonify({'success': False, 'message': 'Метод не поддерживается'}), 405
+
+    try:
+        data = request.get_json()
+        children_ids = data.get('children', [])
+
+        if not children_ids:
+            return jsonify({'success': False, 'message': 'Не выбран ни один участник'}), 400
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Проверяем, существует ли конкурс
+        cursor.execute("SELECT 1 FROM events_table WHERE id = ?", (event_id,))
+        if not cursor.fetchone():
+            return jsonify({'success': False, 'message': 'Конкурс не найден'}), 404
+
+        added_count = 0
+        for child_id in children_ids:
+            # Проверяем, существует ли ребенок
+            cursor.execute("SELECT 1 FROM spisok_in_studio WHERE id = ?", (child_id,))
+            if not cursor.fetchone():
+                continue  # Пропускаем несуществующих детей
+
+            data_add = []
+            save_in_date_table(data_add)
+            added_count += 1
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'added': added_count,
+            'message': f'Успешно добавлено {added_count} участников'
+        })
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'message': f'Ошибка при добавлении: {str(e)}'}), 500
+
+
+# Удаление участника из конкурса
+@app.route('/event/<int:event_id>/remove/<int:id>')
+def remove_from_event(event_id, id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            DELETE FROM data_table 
+            WHERE id = ? 
+        """, (id,))
+        conn.commit()
+        conn.close()
+        flash('Участник удален из конкурса', 'success')
+    except Exception as e:
+        flash(f'Ошибка: {str(e)}', 'error')
+    return redirect(url_for('spisok_in_event', event_id=event_id))
 
 
 @app.route('/karta')
@@ -114,18 +207,14 @@ def karta():
     user = session['username']
     #нужно получить список по spisok
     children = (get_children_group(user, True))  # Получаем список детей из базы данных
-    print(children)
     table_res = []
 
     for child in children:
         ## по ключу ребенка
         ev = get_data_by_id_spisok_kor(child[7], user)
-        print()
-        print(1, ev)
         if ev:
-
             table_res.append([child[1],list(ev), child[0]])
-    print(table_res)
+
 
     return render_template('children_profiles.html', children=table_res)
 
@@ -134,13 +223,12 @@ def karta():
 @app.route('/child/<int:child_id>')
 def child_profile(child_id):
     # child = get_child_by_id(child_id)
-    print(child_id)
+
     child = get_child_in_studya_by_id(child_id)
-    print(child, child_id)
+
     if child:
         # data = get_data_by_id_spisok(child_id, user=session['username'])
         data = get_data_by_id_spisok(child[0], user=session['username'])
-        print(data)
         events = get_events()
         return render_template('child_profile.html', events = events, child=child, data=data, docs=docs)
     return "Ребенок не найден", 404
@@ -157,7 +245,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def add_data_entry(child_id):
     # child = get_child_by_id(child_id)  # Получаем информацию о ребенке по ID
     child = get_child_in_studya_by_id(child_id)
-    print(33, child_id, child)
+
     if request.method == 'GET':
         # Получите данные детей и конкурсов из БД
         children = get_children(session['username'])  # Ваша функция для получения детей
@@ -167,7 +255,6 @@ def add_data_entry(child_id):
        # Обработка POST запроса здесь
     elif request.method == 'POST':
         # id_spisok = request.form['id_spisok']
-        print('post', child_id)
         save_in_date_table(request)
         return redirect(url_for('child_profile', child_id = child_id))
 
@@ -222,7 +309,7 @@ def spisok_children():
         show_load_button = True
     else:
         show_load_button = False
-    children = get_child_by_spisok()  # Получаем список детей из базы данных
+    children = get_children_list_simple() # Получаем список детей из базы данных
     return render_template('spisok_children.html', children=children, show_load_button=show_load_button, result="")
 
 
@@ -233,7 +320,7 @@ def add_child_in_spisok():
     if request.method == 'POST':
         resp = add_in_spisok(request)
         # Получите обновленный список детей
-        children = get_child_by_spisok()
+        children = get_children_list_simple()
 
         resp['children'] = children
         return json.dumps(resp, ensure_ascii=False, indent=4)
@@ -246,8 +333,8 @@ def add_child_in_spisok():
 def add_child_in_spisok_1():
     if request.method == 'POST':
         resp = add_in_spisok(request)
-        # Получите обновленный список детей
-        children = get_child_by_spisok()
+        # # Получите обновленный список детей
+        # children = get_child_by_spisok()
 
         return redirect(url_for('spisok_children'))
     else:
@@ -257,16 +344,16 @@ def add_child_in_spisok_1():
 def add_child_in_spisok_2():
     if request.method == 'POST':
         resp = add_in_spisok(request)
-        return redirect(url_for('add_child'))
+        return redirect(url_for('add_child_in_spisok_2'))
     else:
-        return redirect(url_for('add_child'))
+        return redirect(url_for('add_child_in_spisok_2'))
 
 ## УДАЛЕНИЕ РЕБЕНКА ИЗ ОБЩЕГО СПИСКА
 @app.route('/delete_child_in_spisok/<int:child_id>', methods=['GET', 'POST'])
 def delete_child_in_spisok(child_id):
 
     result = delete_in_spisok(child_id)
-    children = get_child_by_spisok()
+    children = get_children_list_simple()
     return render_template('spisok_children.html', children=children, show_load_button=False, result=result)
 
 ## РЕДАКТИРОВАНИЕ  РЕБЕНКА В СПИСКЕ
@@ -321,6 +408,7 @@ def delete_child(child_id):
     # delete_in_spisok(child_id)
     delete_in_spisok_in_studya(child_id)
     children = get_children(session['username'])
+
     return render_template('spisok.html', children=children, show_load_button=False)
 
 
@@ -330,6 +418,7 @@ def delete_child(child_id):
 @app.route('/events')
 def events():
     events_t = get_events()
+
     return render_template('events.html', events=events_t, levels=levels)
 
 
@@ -346,12 +435,11 @@ def add_konkurs():
 @app.route('/edit_event_inevent/<int:id_event>', methods=['GET', 'POST'])
 def edit_event_inevent(id_event):
     ev = get_events_by_id(id_event)
-    print(ev)
+
     if request.method == 'POST':
         edit_in_events(request, id_event)
         return redirect(url_for('events'))
     else:
-        print(levels)
         return render_template('edit_event_in_event.html', event=ev, levels=levels)  #
 
 

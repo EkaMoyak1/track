@@ -302,6 +302,31 @@ a {
     max-width: 600px;
 }
 
+
+.participants-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.participants-table thead th {
+    background-color: #f2f2f2;
+    border-bottom: 2px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+.participants-table tbody td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+.modal-buttons {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
 .close {
     color: #aaa;
     float: right;

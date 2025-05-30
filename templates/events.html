@@ -104,7 +104,7 @@
             {% for event in events %}
             <tr>
                 <td>{{ loop.index }}</td>
-                <td><a href="{{ url_for('spisok_in_event', event=event[0]) }}">{{ event[1] }}</a></td>
+                <td><a href="{{ url_for('spisok_in_event', event_id=event[0]) }}">{{ event[1] }}</a></td>
                 <td>{{ event[2] }}</td>
                 <td>{{ event[3] }}</td>
                 <td>{{ event[4] }}</td>
