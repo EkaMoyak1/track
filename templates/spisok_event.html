@@ -1,133 +1,201 @@
 {% extends 'base.html' %}
 
-{% block title %}Путь к успеху{% endblock %}
+{% block title %}Участники конкурса{% endblock %}
 
 {% block content %}
-
     <script>
-         function filterTable() {
-            // Получаем значения фильтров
-            const filterФИО = document.getElementById("filterFIO").value.toLowerCase();
-            const filterНаправление = document.getElementById("filterNapravlenie").value.toLowerCase();
-            const filterСтудия = document.getElementById("filterStudio").value.toLowerCase();
-            const filterПедагог = document.getElementById("filterTeacher").value.toLowerCase();
+        function filterParticipants() {
+            const filterName = document.getElementById("filterName").value.toLowerCase();
+            const filterStudio = document.getElementById("filterStudio").value.toLowerCase();
+            const filterTeacher = document.getElementById("filterTeacher").value.toLowerCase();
 
-            const table = document.getElementById("childrenTable");
-            const tr = table.getElementsByTagName("tr");
-            let visibleRowCount = 0; // Счетчик для видимых строк
+            const table = document.getElementById("participantsTable");
+            const rows = table.getElementsByTagName("tr");
 
-            // Проходим по всем строкам таблицы (кроме заголовка)
-            for (let i = 1; i < tr.length; i++) {
-                const tdФИО = tr[i].getElementsByTagName("td")[1];
-                const tdНаправление = tr[i].getElementsByTagName("td")[4];
-                const tdСтудия = tr[i].getElementsByTagName("td")[5];
-                const tdПедагог = tr[i].getElementsByTagName("td")[6];
+            for (let i = 1; i < rows.length; i++) {
+                const nameCell = rows[i].getElementsByTagName("td")[1];
+                const studioCell = rows[i].getElementsByTagName("td")[4];
+                const teacherCell = rows[i].getElementsByTagName("td")[5];
 
-                // Скрываем строку, если ни одно из полей не соответствует фильтрам
-                if (
-                    (tdФИО && tdФИО.textContent.toLowerCase().indexOf(filterФИО) > -1) &&
-                    (tdНаправление && tdНаправление.textContent.toLowerCase().indexOf(filterНаправление) > -1) &&
-                    (tdСтудия && tdСтудия.textContent.toLowerCase().indexOf(filterСтудия) > -1) &&
-                    (tdПедагог && tdПедагог.textContent.toLowerCase().indexOf(filterПедагог) > -1)
-                ) {
-                    tr[i].style.display = ""; // Показываем строку
-                    visibleRowCount++;
-                    tr[i].getElementsByTagName("td")[0].textContent = visibleRowCount; // Обновляем порядковый номер
-                } else {
-                    tr[i].style.display = "none"; // Скрываем строку
-                }
+                const showRow = nameCell.textContent.toLowerCase().includes(filterName) &&
+                               studioCell.textContent.toLowerCase().includes(filterStudio) &&
+                               teacherCell.textContent.toLowerCase().includes(filterTeacher);
+
+                rows[i].style.display = showRow ? "" : "none";
             }
-        }
-
-        function sortTable(columnIndex) {
-            const table = document.getElementById("childrenTable");
-            const tbody = table.getElementsByTagName("tbody")[0];
-            const rows = Array.from(tbody.getElementsByTagName("tr"));
-
-            // Определяем, нужно ли сортировать по возрастанию или убыванию
-            const isAscending = !tbody.getAttribute("data-order") || tbody.getAttribute("data-order") === "desc";
-            tbody.setAttribute("data-order", isAscending ? "asc" : "desc");
-
-            // Сортируем строки
-            rows.sort((a, b) => {
-                const cellA = a.getElementsByTagName("td")[columnIndex].textContent.trim();
-                const cellB = b.getElementsByTagName("td")[columnIndex].textContent.trim();
-
-                // Сравниваем значения
-                if (cellA < cellB) return isAscending ? -1 : 1;
-                if (cellA > cellB) return isAscending ? 1 : -1;
-                return 0;
-            });
-
-            // Очищаем tbody и добавляем отсортированные строки
-            rows.forEach(row => tbody.appendChild(row));
-            // Обновляем порядковые номера после сортировки
-            rows.forEach((row, index) => {
-                row.getElementsByTagName("td")[0].textContent = index + 1;
-            });
         }
     </script>
 
+    <h1>Участники конкурса: {{ event_name }}</h1>
 
-<body>
-    <h1>Список детей по студиям</h1>
-    {% if show_load_button %}
-    <a href="{{ url_for('load_data_route') }}" class="load-btn">
-        <i class="fas fa-upload"></i> Загрузить данные
-    </a>
-    {% endif %}
-    <a href="{{ url_for('add_child', child_id='') }}" class="btn">
-        <i class="fas fa-plus"></i> Добавить ребенка в студию
+    <!-- Кнопка добавления участников -->
+    <a href="#" class="btn" onclick="openAddParticipantsModal()">
+        <i class="fas fa-plus"></i> Добавить участников
     </a>
 
-    <!-- Форма фильтрации -->
+    <!-- Фильтры -->
     <div class="filter-container">
-        <input type="text" id="filterFIO" oninput="filterTable()" placeholder="ФИ ребенка">
-        <input type="text" id="filterNapravlenie" oninput="filterTable()" placeholder="Направление">
-        <input type="text" id="filterStudio" oninput="filterTable()" placeholder="Студия">
-        <input type="text" id="filterTeacher" oninput="filterTable()" placeholder="Педагог">
+        <input type="text" id="filterName" oninput="filterParticipants()" placeholder="ФИО ребенка">
+        <input type="text" id="filterStudio" oninput="filterParticipants()" placeholder="Студия">
+        <input type="text" id="filterTeacher" oninput="filterParticipants()" placeholder="Педагог">
     </div>
 
-    <table id="childrenTable">
+    <table id="participantsTable">
         <thead>
             <tr>
                 <th>№</th>
-                <th  onclick="sortTable(1)">ФИО</th>
+                <th>ФИО</th>
                 <th>Дата рождения</th>
-                <th  onclick="sortTable(3)">Возраст</th>
-                <th  onclick="sortTable(4)">Направление</th>
-                <th onclick="sortTable(5)">Студия</th>
-                <th onclick="sortTable(6)">Педагог</th>
+                <th>Возраст</th>
+                <th>Студия</th>
+                <th>Педагог</th>
                 <th>Действия</th>
             </tr>
         </thead>
         <tbody>
             {% for child in children %}
             <tr>
-<!--                <td>{{ child[0] }}</td>-->
-                <td>{{ loop.index }}</td>  <!-- Используем loop.index для порядкового номера -->
-                <td><a href="{{ url_for('child_profile', child_id=child[7]) }}">{{ child[1] }}</a></td>
+                <td>{{ loop.index }}</td>
+                <td>{{ child[1] }}</td>
                 <td>{{ child[2] }}</td>
                 <td>{{ child[3] }}</td>
-                <td>{{ child[4] }}</td>
                 <td>{{ child[5] }}</td>
                 <td>{{ child[6] }}</td>
                 <td>
-                    <!-- Иконка редактирования -->
-                    <a href="{{ url_for('edit_child', child_id=child[0]) }}" class="edit-btn">
-                        <img src="{{ url_for('static', filename='img/pen.png') }}" alt="Редактировать" style="width: 24px; height: 24px;">
-                    </a>
-                    <!-- Иконка удаления (пример) -->
-                    <a href="{{ url_for('delete_child', child_id=child[0]) }}" class="delete-btn" onclick="return confirm('Вы уверены, что хотите удалить этого ребенка?');">
-                        <img src="{{ url_for('static', filename='img/del.png') }}" alt="Удалить" style="width: 24px; height: 24px;">
+                    <a href="{{ url_for('remove_from_event', event_id=event_id, child_id=child[0]) }}"
+                       class="delete-btn"
+                       onclick="return confirm('Удалить участника из конкурса?')">
+                        <img src="{{ url_for('static', filename='img/del.png') }}" alt="Удалить">
                     </a>
                 </td>
-               </tr>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
-    <br><br><br>
-</body>
 
+    <!-- Модальное окно добавления участников -->
+    <div id="addParticipantsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Добавить участников</h2>
 
+            <!-- Поле поиска -->
+            <div class="search-container">
+                <input type="text" id="searchChild" placeholder="Поиск ребенка..." oninput="searchChildren()">
+            </div>
+
+            <!-- Таблица доступных детей -->
+            <div id="availableChildren" style="max-height: 300px; overflow-y: auto;">
+                <table class="participants-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="select-all"> Выбрать все</th>
+                            <th>ФИО</th>
+                            <th>Студия</th>
+                            <th>Педагог</th>
+                        </tr>
+                    </thead>
+                    <tbody id="children-table-body">
+                        <!-- Сюда будут динамически подгружаться данные через JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Кнопки управления -->
+            <div class="modal-buttons">
+                <button onclick="addSelectedParticipants()">Добавить выбранных</button>
+                <button onclick="closeModal()">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Открытие модального окна и загрузка списка детей
+        function openAddParticipantsModal() {
+            document.getElementById('addParticipantsModal').style.display = 'block';
+            loadAvailableChildren();
+        }
+
+        // Загрузка списка детей через AJAX
+        function loadAvailableChildren() {
+            fetch("{{ url_for('available_children') }}")
+                .then(response => response.json())
+                .then(children => {
+                    const tbody = document.getElementById('children-table-body');
+                    tbody.innerHTML = ''; // Очистить предыдущее содержимое
+
+                    children.forEach(child => {
+                        const row = document.createElement('tr');
+
+                        row.innerHTML = `
+                            <td><input type="checkbox" name="children" value="${child.id}"></td>
+                            <td>${child.fio || ''}</td>
+                            <td>${child.studio || ''}</td>
+                            <td>${child.teacher || ''}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+
+                    // Логика "Выбрать всё"
+                    const selectAll = document.getElementById('select-all');
+                    if (selectAll) {
+                        selectAll.addEventListener('change', function () {
+                            const checkboxes = tbody.querySelectorAll('input[name="children"]');
+                            checkboxes.forEach(cb => cb.checked = this.checked);
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error('Ошибка загрузки детей:', err);
+                    alert('Не удалось загрузить список детей.');
+                });
+        }
+
+        // Поиск по строке
+        function searchChildren() {
+            const searchText = document.getElementById('searchChild').value.toLowerCase();
+            const rows = document.querySelectorAll('#children-table-body tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchText) ? '' : 'none';
+            });
+        }
+
+        // Закрытие модального окна
+        function closeModal() {
+            document.getElementById('addParticipantsModal').style.display = 'none';
+        }
+
+        // Добавление выбранных детей в конкурс
+        function addSelectedParticipants() {
+            const selected = Array.from(document.querySelectorAll('#availableChildren input:checked'))
+                                .map(el => el.value);
+
+            if (selected.length === 0) {
+                alert('Выберите хотя бы одного участника');
+                return;
+            }
+
+            fetch("{{ url_for('add_to_event', event_id=event_id) }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({children: selected})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Ошибка: ' + (data.message || 'Неизвестная ошибка'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка при добавлении участников');
+            });
+        }
+    </script>
 {% endblock %}
