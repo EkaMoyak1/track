@@ -114,39 +114,41 @@
 
         // Загрузка списка детей через AJAX
         function loadAvailableChildren() {
-            fetch("{{ url_for('available_children') }}")
-                .then(response => response.json())
-                .then(children => {
-                    const tbody = document.getElementById('children-table-body');
-                    tbody.innerHTML = ''; // Очистить предыдущее содержимое
+    fetch("{{ url_for('available_children') }}")
+        .then(response => response.json())
+        .then(children => {
+            const tbody = document.getElementById('children-table-body');
+            tbody.innerHTML = ''; // Очистить предыдущее содержимое
 
-                    children.forEach(child => {
-                        const row = document.createElement('tr');
+            children.forEach(child => {
+                const row = document.createElement('tr');
 
-                        row.innerHTML = `
-                            <td><input type="checkbox" name="children" value="${child.id}"></td>
-                            <td>${child.fio || ''}</td>
-                            <td>${child.studio || ''}</td>
-                            <td>${child.teacher || ''}</td>
-                        `;
-                        tbody.appendChild(row);
-                    });
+                // Убедимся, что child.id - число, преобразуем если нужно
+                const childId = Number(child.id);
 
-                    // Логика "Выбрать всё"
-                    const selectAll = document.getElementById('select-all');
-                    if (selectAll) {
-                        selectAll.addEventListener('change', function () {
-                            const checkboxes = tbody.querySelectorAll('input[name="children"]');
-                            checkboxes.forEach(cb => cb.checked = this.checked);
-                        });
-                    }
-                })
-                .catch(err => {
-                    console.error('Ошибка загрузки детей:', err);
-                    alert('Не удалось загрузить список детей.');
+                row.innerHTML = `
+                    <td><input type="checkbox" name="children" value="${childId}"></td>
+                    <td>${child.fio || ''}</td>
+                    <td>${child.studio || ''}</td>
+                    <td>${child.teacher || ''}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Логика "Выбрать всё"
+            const selectAll = document.getElementById('select-all');
+            if (selectAll) {
+                selectAll.addEventListener('change', function () {
+                    const checkboxes = tbody.querySelectorAll('input[name="children"]');
+                    checkboxes.forEach(cb => cb.checked = this.checked);
                 });
-        }
-
+            }
+        })
+        .catch(err => {
+            console.error('Ошибка загрузки детей:', err);
+            alert('Не удалось загрузить список детей.');
+        });
+}
         // Поиск по строке
         function searchChildren() {
             const searchText = document.getElementById('searchChild').value.toLowerCase();
@@ -164,34 +166,40 @@
         }
 
         // Добавление выбранных детей в конкурс
-        function addSelectedParticipants() {
-            const selected = Array.from(document.querySelectorAll('#availableChildren input:checked'))
-                                .map(el => el.value);
+       function addSelectedParticipants() {
+    const selected = Array.from(document.querySelectorAll('#availableChildren input:checked'))
+                        .map(el => Number(el.value)) // Преобразуем в числа
+                        .filter(id => !isNaN(id)); // Фильтруем некорректные значения
 
-            if (selected.length === 0) {
-                alert('Выберите хотя бы одного участника');
-                return;
-            }
+    if (selected.length === 0) {
+        alert('Выберите хотя бы одного участника');
+        return;
+    }
 
-            fetch("{{ url_for('add_to_event', event_id=event_id) }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({children: selected})
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.reload();
-                } else {
-                    alert('Ошибка: ' + (data.message || 'Неизвестная ошибка'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Ошибка при добавлении участников');
-            });
+    fetch("{{ url_for('add_to_event', event_id=event_id) }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({children: selected})
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
         }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert('Ошибка: ' + (data.message || 'Неизвестная ошибка'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ошибка при добавлении участников: ' + error.message);
+    });
+}
     </script>
 {% endblock %}

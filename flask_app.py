@@ -147,6 +147,8 @@ def add_to_event(event_id):
     try:
         data = request.get_json()
         children_ids = data.get('children', [])
+        print(data)
+        print(children_ids)
 
         if not children_ids:
             return jsonify({'success': False, 'message': 'Не выбран ни один участник'}), 400
@@ -158,16 +160,31 @@ def add_to_event(event_id):
         cursor.execute("SELECT 1 FROM events_table WHERE id = ?", (event_id,))
         if not cursor.fetchone():
             return jsonify({'success': False, 'message': 'Конкурс не найден'}), 404
-
+        print(event_id)
         added_count = 0
         for child_id in children_ids:
-            # Проверяем, существует ли ребенок
-            cursor.execute("SELECT 1 FROM spisok_in_studio WHERE id = ?", (child_id,))
-            if not cursor.fetchone():
+            # Проверяем, существует ли ребенок и получаем id_spisok
+            cursor.execute("SELECT id_spisok FROM spisok_in_studio WHERE id = ?", (child_id,))
+            child_data = cursor.fetchone()
+            if not child_data:
                 continue  # Пропускаем несуществующих детей
 
-            data_add = []
-            save_in_date_table(data_add)
+            id_spisok = child_data[0]
+
+            # Проверяем, не добавлен ли уже ребенок в этот конкурс
+            cursor.execute("""
+                SELECT 1 FROM data_table 
+                WHERE id_spisok_in_studio = ? AND id_events_table = ?
+            """, (child_id, event_id))
+            if cursor.fetchone():
+                continue  # Ребенок уже участвует в этом конкурсе
+
+            # Добавляем запись в data_table
+            cursor.execute("""
+                INSERT INTO data_table (id_spisok, id_spisok_in_studio, id_events_table)
+                VALUES (?, ?, ?)
+            """, (id_spisok, child_id, event_id))
+
             added_count += 1
 
         conn.commit()
@@ -180,7 +197,9 @@ def add_to_event(event_id):
         })
 
     except Exception as e:
-        conn.rollback()
+        if 'conn' in locals():
+            conn.rollback()
+            conn.close()
         return jsonify({'success': False, 'message': f'Ошибка при добавлении: {str(e)}'}), 500
 
 
