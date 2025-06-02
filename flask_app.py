@@ -135,6 +135,7 @@ def available_children():
             'id_spisok': child.get('id_in_spisok')
 
         })
+        print(result)
 
     return jsonify(result)
 
@@ -167,7 +168,9 @@ def add_to_event(event_id):
             cursor.execute("SELECT id_spisok FROM spisok_in_studio WHERE id = ?", (child_id,))
             child_data = cursor.fetchone()
             if not child_data:
+                print(f"Ребенок {child_id} не существует")
                 continue  # Пропускаем несуществующих детей
+
 
             id_spisok = child_data[0]
 
@@ -177,6 +180,7 @@ def add_to_event(event_id):
                 WHERE id_spisok_in_studio = ? AND id_events_table = ?
             """, (child_id, event_id))
             if cursor.fetchone():
+                print("Ребенок уже участвует в этом конкурсе")
                 continue  # Ребенок уже участвует в этом конкурсе
 
             # Добавляем запись в data_table
@@ -186,6 +190,7 @@ def add_to_event(event_id):
             """, (id_spisok, child_id, event_id))
 
             added_count += 1
+            print(f"Добавлен участник {id_spisok} ребенок {child_id} в конкурс {event_id}")
 
         conn.commit()
         conn.close()

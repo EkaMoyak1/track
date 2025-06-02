@@ -24,26 +24,26 @@ def get_children_list(user, filter_flag=False, group_by=False, event_id=None):
     """
 
     columns = """
-            spisok_in_studio.id, 
+            spisok_in_studio.id as id_in_studya, 
             spisok.fio as fio, 
             spisok.date_bd, 
             spisok.age, 
             spr_napravlenie.name, 
-            spr_studya.name, 
+            spr_studya.name as studya, 
             teacher.fio as pedagog, 
-            spisok.id
+            spisok.id as id_in_spisok
         """
 
     if group_by:
         columns = """
-                max(spisok_in_studio.id), 
+                max(spisok_in_studio.id) as id_in_studya, 
                 spisok.fio as fio, 
                 max(spisok.date_bd), 
                 max(spisok.age), 
                 max(spr_napravlenie.name), 
-                max(spr_studya.name), 
+                max(spr_studya.name) as studya, 
                 {teacher_column} as pedagog, 
-                spisok.id
+                spisok.id as id_in_spisok
             """.format(
             teacher_column="max(teacher.fio)" if user == 'admin' else "teacher.fio"
         )
