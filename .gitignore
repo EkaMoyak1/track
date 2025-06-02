@@ -20,3 +20,6 @@ date_source.db
 /.idea
 /__pycache__
 date_source.db
+*.xml
+.idea/workspace.xml
+/.idea
