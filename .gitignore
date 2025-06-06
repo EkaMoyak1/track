@@ -1,22 +1,21 @@
-# created by virtualenv automatically
-# Ignore Python virtual environments
-
+# Virtual environment
 .venv/
 venv/
 
+# PyCharm project files
 .idea/
-idea/
 
-# Ignore other common files
+# Python cache files
 __pycache__/
-*.py[cod]
+*.pyc
+*.pyo
+*.pyd
 
+# Database files
+date_source.db
+
+# Temporary files
 .tmp/
 tmp/
 
-date_source.db
 
-/__pycache__
-/.idea
-/__pycache__
-date_source.db
