@@ -1,5 +1,4 @@
 import sqlite3
-import SQL
 
 def create_tables():
     db_lp = sqlite3.connect('date_source.db')
