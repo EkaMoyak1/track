@@ -112,7 +112,8 @@ def spisok_in_event(event_id):
         'spisok_event.html',
         event_name=event[1],
         event_id=event_id,
-        children=children)
+        children=children,
+        docs=docs)
 
 @app.route('/available_children')
 def available_children():
@@ -283,11 +284,47 @@ def add_data_entry(child_id):
         return redirect(url_for('child_profile', child_id = child_id))
 
 
+@app.route('/upload_result', methods=['POST'])
+def upload_result():
+    try:
+        record_id = request.form.get('record_id')
+        doc_type = request.form.get('doc_type')
+        file_name = request.form.get('saved_file_name')
+        if 'fileInput' not in request.files:
+            return jsonify({'success': False, 'message': 'Нет файла'}), 400
+        file = request.files['fileInput']
+        if file.filename == '':
+            return jsonify({'success': False, 'message': 'Файл не выбран'}), 400
+        original_name = file.filename
+        ext = original_name.split('.')[-1]
+        file_name += '.' + ext
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE data_table 
+            SET result = ?, original_name = ?, file = ?
+            WHERE id = ?
+        """, (doc_type, original_name, file_name, record_id))
+        if cursor.rowcount == 0:
+            conn.close()
+            return jsonify({'success': False, 'message': 'Запись не найдена'}), 404
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True, 'message': 'Файл загружен и запись обновлена'})
+    except Exception as e:
+        if 'conn' in locals():
+            conn.rollback()
+            conn.close()
+        return jsonify({'success': False, 'message': f'Ошибка: {str(e)}'}), 500
+
+
 #загрузка файла
 @app.route('/upload_file', methods=['POST'])
 def upload_file():
     # Обработка загрузки файла
     file_name = request.form.get('saved_file_name')
+    print(file_name)
 
     # Проверяем наличие файла
     if 'fileInput' not in request.files:
@@ -304,6 +341,7 @@ def upload_file():
     # Сохраняем файл в папку load
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
     return   jsonify({'saved_file_name': file_name, 'file_name': file.filename}), 200
+
 
 # запись в базу об участии в конкурсе
 @app.route('/save_data', methods=['POST'])
