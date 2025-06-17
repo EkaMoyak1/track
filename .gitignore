@@ -13,7 +13,7 @@ __pycache__/
 *.pyd
 
 # Database files
-date_source.db
+#date_source.db
 
 # Temporary files
 .tmp/
