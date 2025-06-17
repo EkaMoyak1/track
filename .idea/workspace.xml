@@ -5,53 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="70364b84-829a-4296-9f41-64e8f0f50cb9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/files_1.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sql_utils/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sql_utils/child_db.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sql_utils/child_list_db.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sql_utils/competition_db.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sql_utils/crud_db.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sql_utils/db_helpers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sql_utils/event_db.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sql_utils/studio_db.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sql_utils/user_db.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/load/.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/load/file_1748356661795_186.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/load/file_1748356684596_489.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/load/file_1748356713822_619.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/8C49A23A.tmp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/Otchet_1_polugodie.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/Otchet_2_polugodie.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/set_year.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tmp/v_2025-05-27_19-07-51.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tmp/v_2025-05-27_19-47-31.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tmp/v_2025-05-27_19-47-45.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tmp/v_2025-05-27_20-12-15.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tmp/v_2025-05-27_20-18-41.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tmp/v_2025-05-27_20-25-40.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tmp/v_2025-05-27_20-27-46.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tmp/v_2025-05-27_20-40-14.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tmp/v_2025-05-27_20-55-19.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tmp/v_2025-05-27_21-57-21.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tmp/v_2025-05-27_23-12-24.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tmp/v_2025-05-27_23-20-09.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tmp/v_2025-05-27_23-20-11.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tmp/v_2025-05-27_23-23-14.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tmp/v_2025-05-27_23-23-47.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tmp/v_2025-05-27_23-36-27.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tmp/v_2025-05-27_23-43-04.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tmp/v_2025-05-27_23-43-29.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tmp/v_2025-05-27_23-45-35.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Git_track.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Git_track.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SQL.py" beforeDir="false" afterPath="$PROJECT_DIR$/SQL.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/create_bd.py" beforeDir="false" afterPath="$PROJECT_DIR$/create_bd.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/date_source.db" beforeDir="false" afterPath="$PROJECT_DIR$/date_source.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/files.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/flask_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/flask_app.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/load_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/load_data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/child_profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/child_profile.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/footer.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/footer.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/8C49A23A.tmp" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,8 +21,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="HTML File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -106,16 +66,41 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="F:\Track\track\tmp" />
       <recent name="F:\NEW_TRACK\track" />
       <recent name="F:\NEW_TRACK\track\templates" />
       <recent name="D:\Moyakulova\Git_track_27052025\track" />
       <recent name="D:\Python Project\Git_track" />
-      <recent name="D:\Python Project\Git_track\templates" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Python Project\Git_track\templates" />
       <recent name="D:\Python Project\Git_track" />
     </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="flask_app" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="Git_track" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.10 (track)" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/flask_app.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>

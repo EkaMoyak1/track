@@ -136,7 +136,7 @@ def available_children():
             'id_spisok': child.get('id_in_spisok')
 
         })
-        print(result)
+        #print(result)
 
     return jsonify(result)
 
@@ -149,8 +149,8 @@ def add_to_event(event_id):
     try:
         data = request.get_json()
         children_ids = data.get('children', [])
-        print(data)
-        print(children_ids)
+        # print(data)
+        # print(children_ids)
 
         if not children_ids:
             return jsonify({'success': False, 'message': 'Не выбран ни один участник'}), 400
@@ -162,7 +162,7 @@ def add_to_event(event_id):
         cursor.execute("SELECT 1 FROM events_table WHERE id = ?", (event_id,))
         if not cursor.fetchone():
             return jsonify({'success': False, 'message': 'Конкурс не найден'}), 404
-        print(event_id)
+        # print(event_id)
         added_count = 0
         for child_id in children_ids:
             # Проверяем, существует ли ребенок и получаем id_spisok
@@ -324,7 +324,7 @@ def upload_result():
 def upload_file():
     # Обработка загрузки файла
     file_name = request.form.get('saved_file_name')
-    print(file_name)
+    # print(file_name)
 
     # Проверяем наличие файла
     if 'fileInput' not in request.files:

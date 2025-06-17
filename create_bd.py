@@ -1,7 +1,7 @@
-import sqlite3
+from  sql_utils import db_helpers, user_db
 
 def create_tables():
-    db_lp = sqlite3.connect('date_source.db')
+    db_lp = db_helpers.get_db_connection()
     db_lp.execute("PRAGMA foreign_keys = ON")  # Включаем внешние ключи
     cursor_db = db_lp.cursor()
 
@@ -116,6 +116,7 @@ def create_tables():
     sql_create_user_settings = '''
     CREATE TABLE IF NOT EXISTS user_settings (
         id TEXT PRIMARY KEY,
+        user TEXT NOT NULL,
         year_1 INTEGER DEFAULT 2024,
         year_2 INTEGER DEFAULT 2025
     );
@@ -128,7 +129,7 @@ def create_tables():
 
 
 def show_tbl(table):
-    db_lp = sqlite3.connect('date_source.db')
+    db_lp = db_helpers.get_db_connection()
     cursor_db = db_lp.cursor()
     cursor_db.execute('SELECT * from '+table)
 
@@ -141,7 +142,7 @@ def show_tbl(table):
 
 
 def drop_table(name):
-    db_lp = sqlite3.connect('date_source.db')
+    db_lp = db_helpers.get_db_connection()
     cursor_db = db_lp.cursor()
 
     try:
@@ -155,7 +156,7 @@ def drop_table(name):
         db_lp.close()
 
 def clear_table(name):
-    db_lp = sqlite3.connect('date_source.db')
+    db_lp =db_helpers.get_db_connection()
     cursor_db = db_lp.cursor()
 
     try:
@@ -169,7 +170,7 @@ def clear_table(name):
 
 
 def add_column_to_table(table_name, column_name, column_type):
-    db_lp = sqlite3.connect('date_source.db')
+    db_lp = db_helpers.get_db_connection()
     cursor = db_lp.cursor()
 
     # Создаем SQL-запрос для добавления нового столбца
@@ -194,7 +195,7 @@ def add_column_to_table(table_name, column_name, column_type):
 
 def test():
 
-    db_lp = sqlite3.connect('date_source.db')
+    db_lp = db_helpers.get_db_connection()
     cursor_db = db_lp.cursor()
     sql_create = '''CREATE TABLE IF NOT EXISTS user_settings (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -216,12 +217,16 @@ if __name__ == '__main__':
     print('1 - show')
     print('2 - drop')
     print('3 - test')
+    print('4 - create bd')
 
     rej = int(input('выберите режим '))
 
     if rej == 3:
        test()
         # add_column_to_table("events_table", "level", "TEXT")
+    elif rej == 4:
+        create_tables()
+        user_db.add_super_user()
     else:
 
         print()
