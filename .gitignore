@@ -4,6 +4,7 @@ venv/
 
 # PyCharm project files
 .idea/
+idea/
 
 # Python cache files
 __pycache__/
@@ -20,3 +21,4 @@ tmp/
 
 
 /static/load
+/.idea/
