@@ -94,7 +94,7 @@ def update_studyas(excel_file_path, db_lp, cursor_db):
         cursor_db.execute('''
                        INSERT INTO spr_studya (name)
                        VALUES (?)
-                   ''', row_data)
+                   ''', (row_data[0],))
 
     # Сохранение изменений в базе данных
     db_lp.commit()
@@ -303,5 +303,5 @@ def studio_in_napr():
 
 if __name__ == '__main__':
     print('')
-    # load_data()
-    studio_in_napr()
+    load_data()
+    #studio_in_napr()

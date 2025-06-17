@@ -102,6 +102,7 @@ def update_excel_template(user, polugodie, year_1, year_2):
             workbook = openpyxl.load_workbook('templates/Otchet_1_polugodie.xlsx')
             months = ['09', '10', '11', '12']
 
+
         sheet = workbook.active
         print(result_data)
 
