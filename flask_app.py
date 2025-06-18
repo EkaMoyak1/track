@@ -5,6 +5,7 @@ import json
 import pandas as pd
 
 
+
 import load_data, files
 import os
 # from SQL import *
@@ -487,22 +488,22 @@ def events():
 ## ДОБАВЛЕНИЕ КОНКУРСА
 @app.route('/add_konkurs', methods=['GET', 'POST'])
 def add_konkurs():
+    event_types = get_event_types()
     if request.method == 'POST':
         result = add_in_event(request)
-        # return result
         return redirect(url_for('events'))
-    return render_template('add_event.html', levels=levels)
+    return render_template('add_event.html', levels=levels, event_types=event_types)
 
 ## РЕДАКТИРОВАНИЕ конкурса
 @app.route('/edit_event_inevent/<int:id_event>', methods=['GET', 'POST'])
 def edit_event_inevent(id_event):
     ev = get_events_by_id(id_event)
-
+    event_types = get_event_types()
     if request.method == 'POST':
         edit_in_events(request, id_event)
         return redirect(url_for('events'))
     else:
-        return render_template('edit_event_in_event.html', event=ev, levels=levels)  #
+        return render_template('edit_event_in_event.html', event=ev, levels=levels, event_types=event_types)
 
 
 ## УДАЛЕНИЕ КОНКУРСА
@@ -510,8 +511,6 @@ def edit_event_inevent(id_event):
 def delete_event(id_event):
     del_event(id_event)
     return redirect(url_for('events'))
-
-
 
 ## Отчет
 @app.route('/otchet/<int:period>', methods=['GET'])
@@ -528,6 +527,229 @@ def otchet(period):
 
     file_name ='output.xlsx'
     return send_file(file_path, as_attachment=True, download_name=file_name)
+
+
+## ------------- Базовые справочники  --------- ##
+@app.route('/reference/<ref_type>')
+def reference(ref_type):
+    # Поддерживаемые справочники
+    tables = {
+        'event_type': 'event_type',
+        'napravlenie': 'spr_napravlenie',
+        'studya': 'spr_studya',
+        'teacher': 'teacher'
+    }
+
+    if ref_type not in tables:
+        flash("Неизвестный справочник", "error")
+        return redirect(url_for('index'))
+
+    table_name = tables[ref_type]
+    conn = get_db_connection()
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT * FROM {table_name}")
+    items = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+
+    titles = {
+        'event_type': 'Типы конкурсов',
+        'napravlenie': 'Направления',
+        'studya': 'Студии',
+        'teacher': 'Педагоги'
+    }
+
+    return render_template('reference.html', items=items, title=titles[ref_type], ref_type=ref_type)
+
+
+@app.route('/reference/<ref_type>/add', methods=['POST'])
+def add_reference(ref_type):
+    tables = {
+        'event_type': 'event_type',
+        'napravlenie': 'spr_napravlenie',
+        'studya': 'spr_studya',
+        'teacher': 'teacher'
+    }
+
+    if ref_type not in tables:
+        flash("Неизвестный справочник", "error")
+        return redirect(url_for('index'))
+
+    table_name = tables[ref_type]
+    name = request.form.get('name')
+
+    if not name:
+        flash("Введите название", "error")
+        return redirect(url_for('reference', ref_type=ref_type))
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(f"INSERT INTO {table_name} (name) VALUES (?)", (name,))
+        conn.commit()
+    except Exception as e:
+        flash(f"Ошибка: {e}", "error")
+    finally:
+        conn.close()
+
+    return redirect(url_for('reference', ref_type=ref_type))
+
+
+@app.route('/reference/<ref_type>/edit/<int:id>', methods=['GET', 'POST'])
+def edit_reference(ref_type, id):
+    tables = {
+        'event_type': 'event_type',
+        'napravlenie': 'spr_napravlenie',
+        'studya': 'spr_studya',
+        'teacher': 'teacher'
+    }
+
+    if ref_type not in tables:
+        flash("Неизвестный справочник", "error")
+        return redirect(url_for('index'))
+
+    table_name = tables[ref_type]
+
+    if request.method == 'POST':
+        name = request.form.get('name')
+        if name:
+            conn = get_db_connection()
+            conn.execute(f"UPDATE {table_name} SET name = ? WHERE id = ?", (name, id))
+            conn.commit()
+            conn.close()
+        return redirect(url_for('reference', ref_type=ref_type))
+
+    conn = get_db_connection()
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT * FROM {table_name} WHERE id = ?", (id,))
+    item = dict(cursor.fetchone())
+    conn.close()
+
+    return render_template('edit_reference.html', item=item, ref_type=ref_type)
+
+
+@app.route('/reference/<ref_type>/delete/<int:id>')
+def delete_reference(ref_type, id):
+    tables = {
+        'event_type': 'event_type',
+        'napravlenie': 'spr_napravlenie',
+        'studya': 'spr_studya',
+        'teacher': 'teacher'
+    }
+
+    if ref_type not in tables:
+        flash("Неизвестный справочник", "error")
+        return redirect(url_for('index'))
+
+    table_name = tables[ref_type]
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE FROM {table_name} WHERE id = ?", (id,))
+        conn.commit()
+        flash("Запись удалена", "success")
+    except Exception as e:
+        flash(f"Ошибка удаления: {e}", "error")
+    finally:
+        conn.close()
+
+    return redirect(url_for('reference', ref_type=ref_type))
+
+#-------------------  TEACHERS -------------------
+@app.route('/teachers')
+def teachers():
+    if session.get('username') != 'admin':
+        flash("Доступ запрещён", "error")
+        return redirect(url_for('index'))
+
+    conn = get_db_connection()
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM teacher")
+    teachers_list = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+
+    return render_template('teachers.html', teachers=teachers_list)
+
+
+@app.route('/teacher/add', methods=['POST'])
+def add_teacher():
+    if session.get('username') != 'admin':
+        flash("Нет прав для добавления", "error")
+        return redirect(url_for('index'))
+
+    fio = request.form.get('fio')
+    password = request.form.get('password')
+
+    if not fio or not password:
+        flash("Все поля обязательны", "error")
+        return redirect(url_for('teachers'))
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO teacher (FIO, password) VALUES (?, ?)", (fio, password))
+        conn.commit()
+        flash("Педагог добавлен", "success")
+    except sqlite3.IntegrityError:
+        flash("Педагог с таким ФИО уже существует", "error")
+    finally:
+        conn.close()
+
+    return redirect(url_for('teachers'))
+
+
+@app.route('/teacher/<int:teacher_id>/edit', methods=['GET', 'POST'])
+def edit_teacher(teacher_id):
+    if session.get('username') != 'admin':
+        flash("Доступ запрещён", "error")
+        return redirect(url_for('index'))
+
+    conn = get_db_connection()
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    if request.method == 'POST':
+        new_fio = request.form.get('fio')
+        new_password = request.form.get('password')
+        if new_fio and new_password:
+            cursor.execute("UPDATE teacher SET FIO = ?, password = ? WHERE id = ?", (new_fio, new_password, teacher_id))
+            conn.commit()
+            flash("Данные обновлены", "success")
+        else:
+            flash("Заполните все поля", "error")
+        conn.close()
+        return redirect(url_for('teachers'))
+
+    cursor.execute("SELECT * FROM teacher WHERE id = ?", (teacher_id,))
+    teacher = dict(cursor.fetchone())
+    conn.close()
+
+    return render_template('edit_teacher.html', teacher=teacher)
+
+
+@app.route('/teacher/<int:teacher_id>/delete')
+def delete_teacher(teacher_id):
+    if session.get('username') != 'admin':
+        flash("Доступ запрещён", "error")
+        return redirect(url_for('index'))
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM teacher WHERE id = ?", (teacher_id,))
+        conn.commit()
+        flash("Педагог удален", "success")
+    except Exception as e:
+        flash(f"Ошибка: {e}", "error")
+    finally:
+        conn.close()
+
+    return redirect(url_for('teachers'))
+
+
 
 
 @app.route('/set_year', methods=['POST'])

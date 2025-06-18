@@ -1,4 +1,5 @@
 from  sql_utils import db_helpers, user_db
+import sqlite3
 
 def create_tables():
     db_lp = db_helpers.get_db_connection()
@@ -34,6 +35,16 @@ def create_tables():
     cursor_db.execute(sql_create_spisok_in_studio)
     db_lp.commit()
 
+    # event_type - типы конкурсов
+    sql_create_event_type = '''
+    CREATE TABLE IF NOT EXISTS event_type (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE
+    );
+    '''
+    cursor_db.execute(sql_create_event_type)
+    db_lp.commit()
+
     # events_table - справочник конкурсов
     sql_create_events_table = '''
     CREATE TABLE IF NOT EXISTS events_table (
@@ -42,7 +53,9 @@ def create_tables():
         opisanie TEXT,
         srok_podachi_date DATE,
         result_date DATE,
-        level TEXT
+        level TEXT,
+        type_event_id INTEGER,
+        FOREIGN KEY (type_event_id) REFERENCES event_type(id)
     );
     '''
     cursor_db.execute(sql_create_events_table)
@@ -124,21 +137,53 @@ def create_tables():
     cursor_db.execute(sql_create_user_settings)
     db_lp.commit()
 
+    # Заполнение начальных данных в event_type
+    event_types = ["",
+        "НПК", "НИР", "Творческий", "Олимпиада",
+        "Викторина", "Мастер класс", "Хакатон"
+    ]
+    for name in event_types:
+        cursor_db.execute('INSERT OR IGNORE INTO event_type (name) VALUES (?)', (name,))
+    db_lp.commit()
+
     cursor_db.close()
     db_lp.close()
 
 
 def show_tbl(table):
-    db_lp = db_helpers.get_db_connection()
-    cursor_db = db_lp.cursor()
-    cursor_db.execute('SELECT * from '+table)
+    conn = db_helpers.get_db_connection()
+    conn.row_factory = sqlite3.Row  # Чтобы получать строки как словари
+    cursor = conn.cursor()
 
-    # Сохранение изменений в базе данных
-    db_lp.commit()
-    tbl = cursor_db.fetchall()
-    cursor_db.close()
-    db_lp.close()
-    print(tbl)
+    try:
+        cursor.execute(f'SELECT * FROM {table}')
+        rows = cursor.fetchall()
+
+        if not rows:
+            print(f"\n[Таблица '{table}'] пуста.\n")
+            return
+
+        # Преобразуем Row в словари
+        data = [dict(row) for row in rows]
+
+        # Выводим красиво
+        print(f"\n[Таблица: {table}]")
+        print("-" * 50)
+
+        # Выводим заголовки колонок
+        headers = data[0].keys()
+        print(" | ".join(headers))
+
+        # Выводим каждую строку
+        for row in data:
+            print(" | ".join(str(v) for v in row.values()))
+
+        print("-" * 50 + "\n")
+
+    except sqlite3.OperationalError as e:
+        print(f"[Ошибка] Не удалось прочитать таблицу '{table}': {e}")
+    finally:
+        conn.close()
 
 
 def drop_table(name):
@@ -193,22 +238,6 @@ def add_column_to_table(table_name, column_name, column_type):
     # Закрытие соединения с базой данных
     db_lp.close()
 
-def test():
-
-    db_lp = db_helpers.get_db_connection()
-    cursor_db = db_lp.cursor()
-    sql_create = '''CREATE TABLE IF NOT EXISTS user_settings (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user TEXT,
-                    year_1 INTEGER DEFAULT 2024,
-                    year_2 INTEGER DEFAULT 2025
-                     );'''
-
-    cursor_db.execute(sql_create)
-    db_lp.commit()
-
-    cursor_db.close()
-    db_lp.close()
 
 if __name__ == '__main__':
     # create_tables()1
@@ -216,15 +245,12 @@ if __name__ == '__main__':
     # show_tbl('teacher')
     print('1 - show')
     print('2 - drop')
-    print('3 - test')
     print('4 - create bd')
 
     rej = int(input('выберите режим '))
 
-    if rej == 3:
-       test()
-        # add_column_to_table("events_table", "level", "TEXT")
-    elif rej == 4:
+
+    if rej == 4:
         create_tables()
         user_db.add_super_user()
     else:
@@ -239,6 +265,7 @@ if __name__ == '__main__':
         print('7 - studyas_in_napravlenie')
         print('8 - teacher')
         print('9 - user_settings')
+        print('10 - type_event')
         tab = int(input('выберите таблицу '))
         name=''
         if tab == 1:
@@ -259,6 +286,8 @@ if __name__ == '__main__':
             name = 'teacher'
         elif tab == 9:
             name = 'user_settings'
+        elif tab == 10:
+            name = 'event_type'
 
         if rej==1:
             show_tbl(name)

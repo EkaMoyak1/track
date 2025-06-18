@@ -1,247 +1,193 @@
 {% extends 'base.html' %}
-
-{% block title %}Путь к успеху{% endblock %}
-
+{% block title %}Список конкурсов{% endblock %}
 {% block content %}
+<script>
+    function filterTable() {
+        const filterName = document.getElementById("filterName").value.toLowerCase();
+        const filterOpisanie = document.getElementById("filterOpisanie").value.toLowerCase();
+        const filterDB = document.getElementById("filterDB").value;
+        const filterDE = document.getElementById("filterDE").value;
+        const filterLevel = document.getElementById("filterLevel").value;
+        const filterType = document.getElementById("filterType").value;
+        const table = document.getElementById("eventTable");
+        const tr = table.getElementsByTagName("tr");
 
-     <script>
-         function filterTable() {
-            // Получаем значения фильтров
-            const filterName = document.getElementById("filterName").value.toLowerCase();
-            const filterOpisanie = document.getElementById("filterOpisanie").value.toLowerCase();
-            const filterDB = document.getElementById("filterDB").value;
-            const filterDE = document.getElementById("filterDE").value;
-            const filterLevel = document.getElementById("filterLevel").value;
+        let visibleRowCount = 0;
 
-            const table = document.getElementById("eventTable");
-            const tr = table.getElementsByTagName("tr");
-            let visibleRowCount = 0; // Счетчик для видимых строк
+        for (let i = 1; i < tr.length; i++) {
+            const tdName = tr[i].getElementsByTagName("td")[1];
+            const tdOpisanie = tr[i].getElementsByTagName("td")[2];
+            const tdDB = tr[i].getElementsByTagName("td")[3];
+            const tdDE = tr[i].getElementsByTagName("td")[4];
+            const tdLevel = tr[i].getElementsByTagName("td")[5];
+            const tdType = tr[i].getElementsByTagName("td")[6];
 
-            // Проходим по всем строкам таблицы (кроме заголовка)
-            for (let i = 1; i < tr.length; i++) {
-                const tdName = tr[i].getElementsByTagName("td")[1];
-                const tdOpisanie = tr[i].getElementsByTagName("td")[2];
-                const tdDB = tr[i].getElementsByTagName("td")[3];
-                const tdDE = tr[i].getElementsByTagName("td")[4];
-                const tdLevel = tr[i].getElementsByTagName("td")[5];
-
-                // Скрываем строку, если ни одно из полей не соответствует фильтрам
-                if (
-                    (tdName && tdName.textContent.toLowerCase().indexOf(filterName) > -1) &&
-                    (tdOpisanie && tdOpisanie.textContent.toLowerCase().indexOf(filterOpisanie) > -1) &&
-                    (tdDB && tdDB.textContent.indexOf(filterDB) > -1) &&
-                    (tdDE && tdDE.textContent.indexOf(filterDE) > -1) &&
-                     (tdLevel && tdLevel.textContent.indexOf(filterLevel) > -1)
-                ) {
-                    tr[i].style.display = ""; // Показываем строку
-                    visibleRowCount++;
-                    tr[i].getElementsByTagName("td")[0].textContent = visibleRowCount; // Обновляем порядковый номер
-                } else {
-                    tr[i].style.display = "none"; // Скрываем строку
-                }
+            if (
+                (tdName && tdName.textContent.toLowerCase().indexOf(filterName) > -1) &&
+                (tdOpisanie && tdOpisanie.textContent.toLowerCase().indexOf(filterOpisanie) > -1) &&
+                (tdDB && tdDB.textContent.indexOf(filterDB) > -1) &&
+                (tdDE && tdDE.textContent.indexOf(filterDE) > -1) &&
+                (tdLevel && tdLevel.textContent.indexOf(filterLevel) > -1) &&
+                (tdType && tdType.textContent.indexOf(filterType) > -1)
+            ) {
+                tr[i].style.display = "";
+                visibleRowCount++;
+                tr[i].getElementsByTagName("td")[0].textContent = visibleRowCount;
+            } else {
+                tr[i].style.display = "none";
             }
         }
+    }
 
-        function sortTable(columnIndex) {
-            const table = document.getElementById("eventTable");
-            const tbody = table.getElementsByTagName("tbody")[0];
-            const rows = Array.from(tbody.getElementsByTagName("tr"));
+    function sortTable(columnIndex) {
+        const table = document.getElementById("eventTable");
+        const tbody = table.getElementsByTagName("tbody")[0];
+        const rows = Array.from(tbody.getElementsByTagName("tr"));
+        const isAscending = !tbody.getAttribute("data-order") || tbody.getAttribute("data-order") === "desc";
+        tbody.setAttribute("data-order", isAscending ? "asc" : "desc");
 
-            // Определяем, нужно ли сортировать по возрастанию или убыванию
-            const isAscending = !tbody.getAttribute("data-order") || tbody.getAttribute("data-order") === "desc";
-            tbody.setAttribute("data-order", isAscending ? "asc" : "desc");
+        rows.sort((a, b) => {
+            const cellA = a.getElementsByTagName("td")[columnIndex].textContent.trim();
+            const cellB = b.getElementsByTagName("td")[columnIndex].textContent.trim();
 
-            // Сортируем строки
-            rows.sort((a, b) => {
-                const cellA = a.getElementsByTagName("td")[columnIndex].textContent.trim();
-                const cellB = b.getElementsByTagName("td")[columnIndex].textContent.trim();
+            if (cellA < cellB) return isAscending ? -1 : 1;
+            if (cellA > cellB) return isAscending ? 1 : -1;
+            return 0;
+        });
 
-                // Сравниваем значения
-                if (cellA < cellB) return isAscending ? -1 : 1;
-                if (cellA > cellB) return isAscending ? 1 : -1;
-                return 0;
-            });
+        rows.forEach(row => tbody.appendChild(row));
 
-            // Очищаем tbody и добавляем отсортированные строки
-            rows.forEach(row => tbody.appendChild(row));
-            // Обновляем порядковые номера после сортировки
-            rows.forEach((row, index) => {
-                row.getElementsByTagName("td")[0].textContent = index + 1;
-            });
-        }
-    </script>
+        rows.forEach((row, index) => {
+            row.getElementsByTagName("td")[0].textContent = index + 1;
+        });
+    }
+</script>
 
-    <h1>Список конкурсов</h1>
+<h1>Список конкурсов</h1>
 
-<!--    <a href="{{ url_for('add_konkurs', event_id='') }}" class="btn">-->
-    <!-- Кнопка добавить -->
-    <a href="#" id="add-event-btn"  class="btn" data-toggle="modal" data-target="#addEventdModal">
-        <i class="fas fa-plus"></i> Добавить конкурс
-    </a>
+<!-- Кнопка добавить -->
+<a href="{{ url_for('add_konkurs') }}" class="btn">
+    <i class="fas fa-plus"></i> Добавить конкурс
+</a>
 
-    <!-- Форма фильтрации -->
-    <div class="filter-container">
-        <input type="text" id="filterName" oninput="filterTable()" placeholder="Название конкурса">
-        <input type="text" id="filterOpisanie" oninput="filterTable()" placeholder="Описание конкурса">
-        <input type="date" id="filterDB" oninput="filterTable()" placeholder="Дата подачи заявки">
-        <input type="date" id="filterDE" oninput="filterTable()" placeholder="Дата результата">
-         <input type="text" id="filterLevel" oninput="filterTable()" placeholder="Уровень">
+<!-- Форма фильтрации -->
+<div class="filter-container">
+    <input type="text" id="filterName" oninput="filterTable()" placeholder="Название конкурса">
+    <input type="text" id="filterOpisanie" oninput="filterTable()" placeholder="Описание конкурса">
+    <input type="date" id="filterDB" oninput="filterTable()" placeholder="Дата подачи заявки">
+    <input type="date" id="filterDE" oninput="filterTable()" placeholder="Дата результата">
+    <input type="text" id="filterLevel" oninput="filterTable()" placeholder="Уровень">
+    <input type="text" id="filterType" oninput="filterTable()" placeholder="Тип конкурса">
+</div>
+
+<table id="eventTable">
+    <thead>
+        <tr>
+            <th>№</th>
+            <th onclick="sortTable(1)">Полное название конкурса</th>
+            <th onclick="sortTable(2)">Описание</th>
+            <th onclick="sortTable(3)">Срок подачи</th>
+            <th onclick="sortTable(4)">Дата результата</th>
+            <th onclick="sortTable(5)">Уровень</th>
+            <th onclick="sortTable(6)">Тип конкурса</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for event in events %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td><a href="{{ url_for('spisok_in_event', event_id=event.id) }}">{{ event['name'] }}</a></td>
+            <td>{{ event['opisanie'] }}</td>
+            <td>{{ event['srok_podachi_date'] }}</td>
+            <td>{{ event['result_date'] }}</td>
+            <td>{{ event['level'] }}</td>
+            <td>{{ event['type_event_name'] if event['type_event_name'] else '—' }}</td>
+            <td>
+                <!-- Иконка редактирования -->
+                <a href="{{ url_for('edit_event_inevent', id_event=event.id) }}" class="edit-btn">
+                    <img src="{{ url_for('static', filename='img/pen.png') }}" alt="Редактировать" style="width: 24px; height: 24px;">
+                </a>
+                <!-- Иконка удаления -->
+                <a href="{{ url_for('delete_event', id_event=event.id) }}" class="delete-btn" onclick="return confirm('Вы уверены, что хотите удалить этот конкурс?');">
+                    <img src="{{ url_for('static', filename='img/del.png') }}" alt="Удалить" style="width: 24px; height: 24px;">
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<br><br><br>
+
+<!-- Диалог успеха -->
+<div id="successDialog" style="display: none;">
+    <div class="dialog-content">
+        <p id="dialogMessage_1">Данные успешно добавлены</p>
+        <button id="okButton">OK</button>
     </div>
+</div>
 
-    <table id="eventTable">
-        <thead>
-            <tr>
-                <th>№</th>
-                <th onclick="sortTable(1)">Полное название конкурса</th>
-                <th onclick="sortTable(2)">Описание</th>
-                <th onclick="sortTable(3)">Срок подачи</th>
-                <th onclick="sortTable(4)">Дата результата</th>
-                <th onclick="sortTable(5)">Уровень</th>
-                <th>Действия</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for event in events %}
-            <tr>
-                <td>{{ loop.index }}</td>
-                <td><a href="{{ url_for('spisok_in_event', event_id=event[0]) }}">{{ event[1] }}</a></td>
-                <td>{{ event[2] }}</td>
-                <td>{{ event[3] }}</td>
-                <td>{{ event[4] }}</td>
-                <td>{{ event[5] }}</td>
-                <td>
-                    <!-- Иконка редактирования -->
-                    <a href="{{ url_for('edit_event_inevent', id_event=event[0]) }}" class="edit-btn">
-                        <img src="{{ url_for('static', filename='img/pen.png') }}" alt="Редактировать" style="width: 24px; height: 24px;">
-                    </a>
-                    <!-- Иконка удаления (пример) -->
-                    <a href="{{ url_for('delete_event', id_event=event[0]) }}" class="delete-btn" onclick="return confirm('Вы уверены, что хотите удалить этот конкурс?');">
-                        <img src="{{ url_for('static', filename='img/del.png') }}" alt="Удалить" style="width: 24px; height: 24px;">
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <br><br><br>
+<!-- Модальное окно для добавления -->
+<div id="addEventdModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h1>Добавить конкурс</h1>
+        <form method="POST" action="{{ url_for('add_konkurs') }}">
+            <label for="name">Название:</label>
+            <input type="text" id="name" name="name" required><br><br>
 
-    <div id="successDialog"  style="display: none;">
-        <div class="dialog-content">
-            <p id="dialogMessage_1">Данные успешно добавлены</p>
-            <button id="okButton">OK</button>
-        </div>
+            <label for="opisanie">Описание:</label>
+            <input type="text" id="opisanie" name="opisanie" required><br><br>
+
+            <label for="srock">Срок подачи заявки:</label>
+            <input type="date" id="srock" name="srock"><br><br>
+
+            <label for="resultat_date">Дата результата:</label>
+            <input type="date" id="resultat_date" name="resultat_date"><br><br>
+
+            <label for="level">Уровень:</label>
+            <select id="level" name="level" required>
+                {% for level in levels %}
+                <option value="{{ level }}">{{ level }}</option>
+                {% endfor %}
+            </select><br><br>
+
+            <label for="type_event_id">Тип конкурса:</label>
+            <select id="type_event_id" name="type_event_id" required>
+                {% for et in event_types %}
+                <option value="{{ et.id }}">{{ et.name }}</option>
+                {% endfor %}
+            </select><br><br>
+
+            <input type="submit" value="Добавить">
+            <button type="button" class="cancel-button" onclick="closeModal();">Отмена</button>
+        </form>
     </div>
+</div>
 
-    <!-- Модальное окно -->
-    <div id="addEventdModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h1>Добавить конкурс</h1>
-            <form method="POST" action="{{ url_for('add_konkurs') }}">
-                <label for="name">Название:</label>
-                <input type="text" id="name" name="name" required><br>
-                <br>
-                <label for="opisanie">Описание</label>
-                <input type="text" id="opisanie" name="opisanie" required><br>
-                <br>
-                <label for="srock">Срок подачи заявки:</label>
-                <input type="date" id="srock" name="srock" ><br>
-                <br><br>
-                <label for="resultat_date">Дата результата:</label>
-                <input type="date" id="resultat_date" name="resultat_date" ><br>
-                <br><br>
-                <label for="level">Уровень</label>
-                <select id="level" name="level" required>
-                    {% for level in levels %}
-                    <option value="{{ level }}">{{ level }}</option>
-                    {% endfor %}
-                </select>
-                <br>
-                <br><br>
-                <input type="submit" value="Добавить">
-                <button type="button" class="cancel-button" onclick="closeModal();">Отмена</button> <!-- Кнопка Отмена -->
+<script>
+    // Получаем элементы модального окна
+    var modal = document.getElementById("addEventdModal");
+    var btn = document.getElementById("add-event-btn");
+    var span = document.getElementsByClassName("close")[0];
 
-                <br>
-            </form>
-        </div>
-    </div>
+    // Открытие модального окна
+    btn.onclick = function () {
+        modal.style.display = "block";
+    };
 
-    <script>
+    // Закрытие по крестику
+    span.onclick = function () {
+        modal.style.display = "none";
+    };
 
-        // Получаем элементы
-        var modal = document.getElementById("addEventdModal");
-        var btn = document.getElementById("add-event-btn");
-        var span = document.getElementsByClassName("close")[0];
-
-        // Открываем модальное окно при нажатии на кнопку
-        btn.onclick = function() {
-            modal.style.display = "block";
-        }
-
-        // Закрываем модальное окно при нажатии на крестик
-        span.onclick = function() {
+    // Закрытие по клику вне окна
+    window.onclick = function (event) {
+        if (event.target == modal) {
             modal.style.display = "none";
         }
+    };
+</script>
 
-        // Закрываем модальное окно при клике за его пределами
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-
-        document.querySelector("#addEventdModal .btn").onclick = function(event) {
-            event.preventDefault(); // Предотвращаем стандартное поведение формы
-
-            // Получаем данные из формы
-            const form = document.querySelector("#addEventdModal form");
-            const formData = new FormData(form);
-
-            // Отправляем данные на сервер с использованием Fetch API
-            fetch(form.action, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json(); // или response.text() в зависимости от ответа сервера
-                }
-                throw new Error('Network response was not ok.');
-            })
-            .then(data => {
-                console.log('Success:', data);
-
-                // Измените текст на успешное сообщение
-                const dialogMessage = document.getElementById('dialogMessage_1');
-                dialogMessage.textContent = 'Данные успешно добавлены';
-
-                // Показываем диалог успеха
-                const successDialog = document.getElementById('successDialog');
-                successDialog.style.display = 'block';
-
-                // Закрываем диалог успеха по клику на кнопку OK
-                document.getElementById('okButton').onclick = function() {
-                    successDialog.style.display = 'none';
-                    window.location.reload(); // Перезагрузить страницу
-                };
-                // Обновите интерфейс или сделайте что-то еще с ответом `data`
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                // Обработайте ошибку
-                const dialogMessage = document.getElementById('dialogMessage_1');
-                dialogMessage.textContent = 'Ошибка записи!!!'
-                // Показываем диалог успеха (в данном случае для отображения ошибки)
-                const successDialog = document.getElementById('successDialog');
-                successDialog.style.display = 'block';
-
-                // Закрываем диалог успеха по клику на кнопку OK
-                document.getElementById('okButton').onclick = function() {
-                    successDialog.style.display = 'none';
-                };
-            });
-            // Закрываем модальное окно
-            modal.style.display = "none";
-        };
-    </script>
 {% endblock %}

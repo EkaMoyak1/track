@@ -1,31 +1,35 @@
 {% extends 'base.html' %}
 
-{% block title %}Путь к успеху{% endblock %}
+{% block title %}Добавить конкурс{% endblock %}
 
 {% block content %}
 
     <h1>Добавить конкурс</h1>
     <form method="POST">
         <label for="name">Название:</label>
-        <input type="text" id="name" name="name" required><br>
-        <br>
-        <label for="opisanie">Описание</label>
-        <input type="text" id="opisanie" name="opisanie" required><br>
-        <br>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="opisanie">Описание:</label>
+        <input type="text" id="opisanie" name="opisanie" required><br><br>
+
         <label for="srock">Срок подачи заявки:</label>
-        <input type="date" id="srock" name="srock" required><br>
-        <br><br>
+        <input type="date" id="srock" name="srock" required><br><br>
+
         <label for="resultat_date">Дата результата:</label>
-        <input type="date" id="resultat_date" name="resultat_date" required><br>
+        <input type="date" id="resultat_date" name="resultat_date" required><br><br>
+
+        <label for="level">Уровень:</label>
+        <input type="text" id="level" name="level" required><br><br>
+
+        <label for="type_event_id">Тип конкурса:</label>
+        <select id="type_event_id" name="type_event_id" required>
+            {% for et in event_types %}
+                <option value="{{ et.id }}">{{ et.name }}</option>
+            {% endfor %}
+        </select>
         <br><br>
-        <label for="level">Уровень</label>
-        <input type="text" id="level" name="level" required><br>
-        <br>
-        <br><br>
+
         <button class="btn" type="submit">Добавить</button>
-        <br>
-
     </form>
-
 
 {% endblock %}

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Путь к успеху{% endblock %}
+{% block title %}Изменение данных по конкурсу{% endblock %}
 
 {% block content %}
 
@@ -11,32 +11,43 @@
         <br>
 
         <label name="name">Полное название конкурса:</label>
-        <input type="string" id="name" name="name" value = "{{event[1]}}" required style="width: 100%;" required><br>
-        <br>
+        <input type="string" id="name" name="name" value="{{ event[1] }}" required style="width: 100%;">
+        <br><br>
 
         <label for="opisanie">Короткое описание:</label>
-        <input type="string" id="opisanie" name="opisanie" value = "{{event[2]}}" required><br>
-        <br>
+        <input type="string" id="opisanie" name="opisanie" value="{{ event[2] }}" required>
+        <br><br>
 
         <label for="srok_podachi_date">Дата начала подачи заявки:</label>
-        <input type="date" id="srok_podachi_date" name="srok_podachi_date" value = "{{event[3]}}"  ><br>
-        <br>
+        <input type="date" id="srok_podachi_date" name="srok_podachi_date" value="{{ event[3] }}">
+        <br><br>
 
-        <label for="result_date">Дата подведение итогов:</label>
-        <input type="date" id="result_date" name="result_date" value = "{{event[4]}}"  ><br>
-        <br>
+        <label for="result_date">Дата подведения итогов:</label>
+        <input type="date" id="result_date" name="result_date" value="{{ event[4] }}">
+        <br><br>
 
-        <label for="level">Уровень</label>
-            <select id="level" name="level" required>
-                {% for level in levels %}
-                <option value="{{ level }}" {% if level == event[5] %}selected{% endif %} >{{ level }}</option>
-                {% endfor %}
-            </select>
-        <br>
+        <label for="type_event_id">Тип конкурса:</label>
+        <select id="type_event_id" name="type_event_id" required>
+            {% for et in event_types %}
+                <option value="{{ et.id }}" {% if et.id == event.type_event_id %}selected{% endif %}>
+                    {{ et.name }}
+                </option>
+            {% endfor %}
+        </select>
+        <br><br>
+
+        <label for="level">Уровень:</label>
+        <select id="level" name="level" required>
+            {% for level in levels %}
+                <option value="{{ level }}" {% if level == event[5] %}selected{% endif %}>
+                    {{ level }}
+                </option>
+            {% endfor %}
+        </select>
         <br><br>
 
         <input type="submit" value="Сохранить">
-        <button type="button" class="cancel-button" onclick="history.back();">Отмена</button> <!-- Кнопка Отмена -->
+        <button type="button" class="cancel-button" onclick="history.back();">Отмена</button>
         <br>
     </form>
 

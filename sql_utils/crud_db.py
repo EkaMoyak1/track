@@ -156,19 +156,22 @@ def add_in_spisok(request):
 
 def add_in_event(request):
     """Add new event"""
-    name = request.form['name']
-    opisanie = request.form['opisanie']
-    srock = request.form['srock']
-    resultat_date = request.form['resultat_date']
-    level = request.form['level']
+    name = request.form.get('name')
+    opisanie = request.form.get('opisanie')
+    srock = request.form.get('srock')
+    resultat_date = request.form.get('resultat_date')
+    level = request.form.get('level')
+    type_event_id = request.form.get('type_event_id')  # Получаем ID типа конкурса
+
     try:
         conn = get_db_connection()
         conn.execute("PRAGMA foreign_keys = ON")
         cursor = conn.cursor()
         cursor.execute("""
-            INSERT INTO events_table (name, opisanie, srok_podachi_date, result_date, level)
-            VALUES (?, ?, ?, ?, ?)
-        """, (name, opisanie, srock, resultat_date, level))
+            INSERT INTO events_table 
+                (name, opisanie, srok_podachi_date, result_date, level, type_event_id)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (name, opisanie, srock, resultat_date, level, type_event_id))
         conn.commit()
         flash('Конкурс успешно добавлен', 'success')
         return {"result": True}
@@ -244,25 +247,27 @@ def edit_in_spisok_studya(request, field_id):
 def edit_in_events(request, event_id):
     """Edit event information"""
     try:
-        name = request.form['name']
-        opisanie = request.form['opisanie']
-        srok_podachi_date = request.form['srok_podachi_date']
-        result_date = request.form['result_date']
-        level = request.form['level']
+        name = request.form.get('name')
+        opisanie = request.form.get('opisanie')
+        srok_podachi_date = request.form.get('srok_podachi_date')
+        result_date = request.form.get('result_date')
+        level = request.form.get('level')
+        type_event_id = request.form.get('type_event_id')  # Получаем ID типа конкурса
+
         conn = get_db_connection()
         conn.execute("PRAGMA foreign_keys = ON")
         cursor = conn.cursor()
         cursor.execute("""
             UPDATE events_table
-            SET name=?, opisanie=?, srok_podachi_date=?, result_date=?, level=?
+            SET name=?, opisanie=?, srok_podachi_date=?, result_date=?, level=?, type_event_id=?
             WHERE id = ?
-        """, (name, opisanie, srok_podachi_date, result_date, level, event_id))
+        """, (name, opisanie, srok_podachi_date, result_date, level, type_event_id, event_id))
         conn.commit()
         flash('Конкурс успешно изменен', 'success')
     except sqlite3.IntegrityError as e:
         flash(f'Ошибка ссылочной целостности: {e}', 'error')
-    except Exception:
-        flash('Ошибка при записи', 'error')
+    except Exception as e:
+        flash(f'Ошибка при записи: {e}', 'error')
     finally:
         conn.close()
 

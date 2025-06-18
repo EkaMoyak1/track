@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Редактировать запись{% endblock %}
+{% block content %}
+    <h2>Редактировать {{ item.name }}</h2>
+    <form method="post">
+        <input type="text" name="name" value="{{ item.name }}" required>
+        <button type="submit">Сохранить</button>
+        <a href="{{ url_for('reference', ref_type=ref_type) }}">Отмена</a>
+    </form>
+{% endblock %}

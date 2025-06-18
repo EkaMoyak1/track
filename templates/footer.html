@@ -19,9 +19,13 @@
             <div>
                 <p>Справочники</p>
                 <a href="{{ url_for('spisok_children') }}">Список детей</a>
-                <a href="{{ url_for('index') }}">Педагогов</a>
-                <a href="{{ url_for('index') }}">Студий</a>
-                <a href="{{ url_for('index') }}">Направлений</a>
+                <a href="{{ url_for('teachers') }}">Педагоги</a>
+                <a href="{{ url_for('reference', ref_type='studya') }}">Студии</a>
+            </div>
+            <div>
+                <br>
+                <a href="{{ url_for('reference', ref_type='napravlenie')  }}">Направления</a>
+                <a href="{{ url_for('reference', ref_type='event_type') }}">Тип конкурсов</a>
             </div>
         </div>
     </div>

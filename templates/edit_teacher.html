@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Редактировать педагога{% endblock %}
+{% block content %}
+
+<h2>Редактировать педагога {{ teacher.FIO }}</h2>
+
+<form method="post">
+    <label>ФИО:</label>
+    <input type="text" name="fio" value="{{ teacher.FIO }}" required><br><br>
+
+    <label>Пароль:</label>
+    <input type="text" name="password" value="{{ teacher.password }}" required><br><br>
+
+    <button type="submit">Сохранить</button>
+    <a href="{{ url_for('teachers') }}">Отмена</a>
+</form>
+
+{% endblock %}
