@@ -254,7 +254,7 @@ def child_profile(child_id):
 
     if child:
         # data = get_data_by_id_spisok(child_id, user=session['username'])
-        data = get_data_by_id_spisok(child[0], user=session['username'])
+        data = get_data_by_id_spisok(child['id'], user=session['username'])
         events = get_events()
         return render_template('child_profile.html', events = events, child=child, data=data, docs=docs)
     return "Ребенок не найден", 404
@@ -291,28 +291,37 @@ def upload_result():
     try:
         record_id = request.form.get('record_id')
         doc_type = request.form.get('doc_type')
+        date_otcheta = request.form.get('date_otcheta')  # Новое поле
 
-        # Проверяем, есть ли уже запись с таким ID
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Если файл загружен
-        file_name = request.form.get('saved_file_name')
-        original_name = ''
+        # Получаем текущую запись для проверки старого имени файла
+        cursor.execute("SELECT file FROM data_table WHERE id = ?", (record_id,))
+        old_record = cursor.fetchone()
+        old_file_name = old_record['file'] if old_record else None
+        new_date = date_otcheta  # Сохраняем дату из формы
 
+        original_name = ''
+        file_name = old_file_name  # Сохраняем старое имя, если файл не загружен
+
+        # Если загружен новый файл
         if 'fileInput' in request.files and request.files['fileInput'].filename:
             file = request.files['fileInput']
             original_name = file.filename
-            ext = original_name.split('.')[-1]
-            file_name += '.' + ext
+            ext = original_name.rsplit('.', 1)[-1] if '.' in original_name else 'bin'
+            file_name = f"{request.form.get('saved_file_name')}.{ext}"
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
+        elif not old_file_name:
+            # Если файла раньше не было и сейчас тоже нет — можно оставить пустым или установить NULL
+            file_name = None
 
         # Обновляем запись
         cursor.execute("""
             UPDATE data_table 
-            SET result = ?, original_name = ?, file = ?
+            SET result = ?, original_name = ?, file = ?, date_otcheta = ?
             WHERE id = ?
-        """, (doc_type, original_name, file_name, record_id))
+        """, (doc_type, original_name, file_name, new_date, record_id))
 
         if cursor.rowcount == 0:
             conn.close()
@@ -322,6 +331,7 @@ def upload_result():
         conn.close()
 
         return jsonify({'success': True, 'message': 'Файл загружен и запись обновлена'})
+
     except Exception as e:
         if 'conn' in locals():
             conn.rollback()
@@ -397,6 +407,7 @@ def save_data():
     id_spisok = request.form.get('id_spisok')
 
     if request.method =='POST':
+        print(1)
         update_in_data_table(request)
 
     return jsonify({'status': 'success'})  # Возвращаем JSON-ответ

@@ -27,18 +27,24 @@ def save_in_date_table(request):
         saved_file_name = request.form['saved_file_name']
         field_id = request.form['field_id']
         file = request.files['fileInput']
-        original_name = file.filename
-        ext = original_name.split('.')[-1]
-        saved_file_name += '.' + ext
+        date_otcheta = request.form.get('date_otcheta')  # может быть пустой строкой
+
+        original_name = ''
+        if file.filename != '':
+            original_name = file.filename
+            ext = original_name.split('.')[-1]
+            saved_file_name += '.' + ext
+        else:
+            saved_file_name = ''
 
         conn = get_db_connection()
         conn.execute("PRAGMA foreign_keys = ON")
         cursor = conn.cursor()
 
         cursor.execute("""
-            INSERT INTO data_table (id_spisok, id_spisok_in_studio, id_events_table, result, original_name, file)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (id_spisok, field_id, id_events_table, doc_type, original_name, saved_file_name))
+            INSERT INTO data_table (id_spisok, id_spisok_in_studio, id_events_table, result, original_name, file, date_otcheta)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (id_spisok, field_id, id_events_table, doc_type, original_name, saved_file_name, date_otcheta))
 
         conn.commit()
         flash('Запись успешно добавлена', 'success')
@@ -61,6 +67,11 @@ def update_in_data_table(request):
     result = request.form.get('id_doc_type')
     file = request.form.get('saved_file_name')
     original_name = request.form.get('original_file_name')
+    date_otcheta = request.form.get('date_otcheta', '').strip()
+
+    if original_name=='':
+        file = ''
+        print('file=', file)
     try:
         conn = get_db_connection()
         conn.execute("PRAGMA foreign_keys = ON")
@@ -74,9 +85,9 @@ def update_in_data_table(request):
         else:
             cursor.execute("""
                 UPDATE data_table
-                SET id_spisok = ?, id_events_table = ?, result = ?, file = ?, original_name = ?
+                SET id_spisok = ?, id_events_table = ?, result = ?, file = ?, original_name = ?,  date_otcheta = ?
                 WHERE id = ?
-            """, (id_spisok, id_events_table, result, file, original_name, record_id))
+            """, (id_spisok, id_events_table, result, file, original_name, date_otcheta,record_id))
         conn.commit()
         flash('Запись успешно изменена', 'success')
     except KeyError as e:

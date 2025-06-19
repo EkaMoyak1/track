@@ -1,14 +1,12 @@
 {% extends 'base.html' %}
-
 {% block title %}Путь к успеху{% endblock %}
-
 {% block content %}
     <h4>Карта маршрута участия на конкурсах</h4>
-    <h2>{{ child[1] }}</h2>
+    <h2>{{ child['fio'] }}</h2>
 
     <!-- Кнопка добавления элементов -->
     <div class="button-container">
-        <a href="{{ url_for('add_data_entry', child_id=child[7]) }}" class="add-button-plus">+</a>
+        <a href="{{ url_for('add_data_entry', child_id=child['id_table']) }}" class="add-button-plus">+</a>
     </div>
 
     <div class="t-container">
@@ -53,60 +51,75 @@
                                  imgfield="li_img__6386951860020_l21" style="max-width:150px;" alt="">
                         </div>
                     </div>
+
                     <div class="t1107__imgwrapper t-align_center"
                          style="flex: 1; position: relative; display: flex; justify-content: center; align-items: center;">
                         {% if record[9] is not none and record[9] != '' %}
-                        <a href="{{ url_for('static', filename='load/'+record[9]) }}" target="_blank">
-                            <img class="t1107__img t-margin_auto t-img"
-                                 src="{{ url_for('static', filename='img/Rectangle 3.png') }}"
-                                 imgfield="li_img__6386951860020_l1" style="max-width:250px;" alt="">
-                        </a>
+                            <a href="{{ url_for('static', filename='load/'+record[9]) }}" target="_blank">
+                                <img class="t1107__img t-margin_auto t-img"
+                                     src="{{ url_for('static', filename='img/Rectangle 3.png') }}"
+                                     imgfield="li_img__6386951860020_l1" style="max-width:250px;" alt="">
+                            </a>
                         {% else %}
-                        <a href="#">
-                            <img class="t1107__img t-margin_auto t-img"
-                                 src="{{ url_for('static', filename='img/Rectangle 3.png') }}"
-                                 imgfield="li_img__6386951860020_l1" style="max-width:250px;" alt="">
-                        </a>
+                            <a href="#">
+                                <img class="t1107__img t-margin_auto t-img"
+                                     src="{{ url_for('static', filename='img/Rectangle 3.png') }}"
+                                     imgfield="li_img__6386951860020_l1" style="max-width:250px;" alt="">
+                            </a>
                         {% endif %}
 
                         <!-- Центрированный текст поверх изображения -->
                         <div class="t1107__textwrapper t-align_center"
                              style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%; max-width: 200px; text-align: center;">
-
                             {% if record[9] is not none and record[9] != '' %}
-                            <a href="{{ url_for('static', filename='load/'+record[9]) }}" target="_blank"
-                               style="text-decoration: underline; color: #00ff99; font-weight: bold; display: block; text-align: center;">
-                                {{ record[3] }}
-                            </a>
+                                <a href="{{ url_for('static', filename='load/'+record[9]) }}" target="_blank"
+                                   style="text-decoration: underline; color: #00ff99; font-weight: bold; display: block; text-align: center;">
+                                    {{ record[3] }}
+                                    <br><small style="color: #ccc;">от {{ record[10] }}</small>
+                                </a>
                             {% else %}
-                            <span style="color: white; font-size: 14px; display: block; text-align: center;">
-                <strong>
-                    {% if record[3] is not none %}
-                        {{ record[3] }}
-                    {% else %}
-                        &nbsp; <!-- Пустая строка -->
-                    {% endif %}
-                </strong>
-            </span>
+                                <span style="color: white; font-size: 14px; display: block; text-align: center;">
+                                    <strong>
+                                        {% if record[3] is not none %}
+                                            {{ record[3] }}
+                                            {% if record[10] %}
+                                                <br><small style="color: #ccc;">от {{ record[10] }}</small>
+                                            {% endif %}
+                                        {% else %}
+                                            &nbsp;
+                                        {% endif %}
+                                    </strong>
+                                </span>
                             {% endif %}
                         </div>
                     </div>
 
                     <div class="right-div-part2" style="flex: 1; text-align: center;">
-                        <a href="#" class="edit-button" data-record="{{ record[0] }}" data-def-doc="{{ record[3] }}" data-orig-name="{{ record[8] }}" onclick="openUploadModal(this)">
-                            <img class="t1107__img_1 t-margin_auto t-img" src="{{ url_for('static', filename='img/pen.png') }}" style="max-width:30px;" alt="">
+                        <a href="#" class="edit-button"
+                           data-record="{{ record[0] }}"
+                           data-def-doc="{{ record[3] }}"
+                           data-orig-name="{{ record[8] }}"
+                           data-otcheta="{{ record[10] or '' }}"
+                           onclick="openUploadModal(this)">
+                            <img class="t1107__img_1 t-margin_auto t-img"
+                                 src="{{ url_for('static', filename='img/pen.png') }}"
+                                 style="max-width:30px;" alt="">
                         </a>
-                        <a href="#" class="delete-button" data-record="{{ record[0] }}" onclick="deleteRecord(this)">
-                            <img class="t1107__img_1 t-margin_auto t-img" src="{{ url_for('static', filename='img/del.png') }}" style="max-width:30px;" alt="Удаление">
+                        <a href="#" class="delete-button"
+                           data-record="{{ record[0] }}"
+                           onclick="deleteRecord(this)">
+                            <img class="t1107__img_1 t-margin_auto t-img"
+                                 src="{{ url_for('static', filename='img/del.png') }}"
+                                 style="max-width:30px;" alt="Удаление">
                         </a>
                     </div>
                 </div>
-            </div>
 
-            <div class="t1107__arrow t-align_center">
-                <img class="t-divider t-divider__arrow t1107__arrow"
-                     src="{{ url_for('static', filename='img/Arrow 1.png') }}"
-                     imgfield="li_img__6386951860020_1" style="max-width:800px;" alt="">
+                <div class="t1107__arrow t-align_center">
+                    <img class="t-divider t-divider__arrow t1107__arrow"
+                         src="{{ url_for('static', filename='img/Arrow 1.png') }}"
+                         imgfield="li_img__6386951860020_1" style="max-width:800px;" alt="">
+                </div>
             </div>
         {% endfor %}
     </div>
@@ -118,6 +131,7 @@
             <h2>Редактировать результат</h2>
             <form id="uploadForm" enctype="multipart/form-data">
                 <input type="hidden" name="record_id" id="record_id">
+
                 <label for="doc_type">Результат:</label>
                 <select name="doc_type" id="doc_type" required>
                     {% for doc_t in docs %}
@@ -125,16 +139,24 @@
                     {% endfor %}
                 </select>
                 <br><br>
+
+                <label for="date_otcheta">Дата включения в отчет:</label>
+                <input type="date" id="date_otcheta" name="date_otcheta">
+                <br><br>
+
                 <label for="fileInput">Файл:</label>
                 <input type="file" name="fileInput" id="fileInput" accept=".txt,.pdf,.doc,.docx,.jpg,.png">
                 <input type="hidden" name="saved_file_name" id="saved_file_name">
+
                 <div id="file-name-display" style="display: inline-block;"></div>
                 <button id="remove-file-btn" style="display: none; margin-left: 10px;" onclick="removeFile()">✖</button>
+
                 <div id="progress" style="display: none;">
                     <div id="progress-bar" style="width: 0%; height: 20px; background-color: #4CAF50;"></div>
                 </div>
                 <div id="message"></div>
                 <br><br>
+
                 <div class="modal-buttons">
                     <button type="button" onclick="submitUploadForm()">Сохранить</button>
                     <button type="button" onclick="closeUploadModal()">Отмена</button>
@@ -144,33 +166,50 @@
     </div>
 
     <script>
-        // Открытие модального окна для загрузки файла
+        // Генерация уникального имени файла только после выбора
+        $("#fileInput").on("change", function () {
+            var file = this.files[0];
+            if (!file) {
+                document.getElementById('saved_file_name').value = '';
+                document.getElementById('file-name-display').textContent = '';
+                document.getElementById('remove-file-btn').style.display = 'none';
+                return;
+            }
+
+            var uniqueFileName = 'file_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+            document.getElementById('saved_file_name').value = uniqueFileName;
+
+            document.getElementById('file-name-display').textContent = "Выбранный файл: " + file.name;
+            document.getElementById('remove-file-btn').style.display = 'inline-block';
+        });
+
+        // Открытие модального окна
         function openUploadModal(element) {
             const recordId = element.getAttribute('data-record');
             const defDoc = element.getAttribute('data-def-doc');
             const origName = element.getAttribute('data-orig-name');
+            const dateOtch = element.getAttribute('data-otcheta');
 
             document.getElementById('uploadModal').style.display = 'block';
             document.getElementById('record_id').value = recordId;
             document.getElementById('uploadForm').reset();
-            document.getElementById('saved_file_name').value = 'file_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+            document.getElementById('file-name-display').textContent = '';
+            document.getElementById('remove-file-btn').style.display = 'none';
             document.getElementById('message').textContent = '';
             document.getElementById('progress').style.display = 'none';
 
-            // Заполнение поля результата
+            // Заполняем поля
             if (defDoc) {
                 document.getElementById('doc_type').value = defDoc;
             }
+            if (dateOtch) {
+                document.getElementById('date_otcheta').value = dateOtch;
+            }
 
-            // Отображение оригинального имени файла
-            const fileNameDisplay = document.getElementById('file-name-display');
-            const removeFileBtn = document.getElementById('remove-file-btn');
+            // Имя файла
             if (origName) {
-                fileNameDisplay.textContent = "Загруженный файл: " + origName;
-                removeFileBtn.style.display = 'inline-block';
-            } else {
-                fileNameDisplay.textContent = "";
-                removeFileBtn.style.display = 'none';
+                document.getElementById('file-name-display').textContent = "Загруженный файл: " + origName;
+                document.getElementById('remove-file-btn').style.display = 'inline-block';
             }
         }
 
@@ -188,37 +227,39 @@
             document.getElementById('remove-file-btn').style.display = 'none';
         }
 
-        // Отправка формы через AJAX
+        // Отправка формы
         function submitUploadForm() {
             const form = document.getElementById('uploadForm');
             const formData = new FormData(form);
 
-            const progressBar = document.getElementById('progress-bar');
-            document.getElementById('progress').style.display = 'block';
-            progressBar.style.width = '0%';
+            const docType = formData.get("doc_type");
+            const dateOtcheta = formData.get("date_otcheta");
 
+            // Валидация даты
+            if (docType && !dateOtcheta) {
+                alert("Дата отчета обязательна, если указан результат");
+                return;
+            }
+
+            // Отправка
             fetch("{{ url_for('upload_result') }}", {
                 method: 'POST',
                 body: formData
             })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
+                if (!response.ok) throw new Error('Ошибка сети');
                 return response.json();
             })
             .then(data => {
                 if (data.success) {
                     document.getElementById('message').textContent = 'Файл загружен и запись обновлена!';
-                    setTimeout(() => {
-                        closeUploadModal();
-                    }, 1000);
+                    setTimeout(() => closeUploadModal(), 1000);
                 } else {
                     document.getElementById('message').textContent = 'Ошибка: ' + (data.message || 'Неизвестная ошибка');
                 }
             })
             .catch(error => {
-                document.getElementById('message').textContent = 'Ошибка при загрузке: ' + error.message;
+                document.getElementById('message').textContent = 'Ошибка: ' + error.message;
             });
         }
 
@@ -228,37 +269,25 @@
             if (confirm("Вы уверены, что хотите удалить эту запись?")) {
                 fetch('/delete_data', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: `record_id=${recordId}`
                 })
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Сетевая ошибка');
-                    }
+                    if (!response.ok) throw new Error('Ошибка сети');
                     return response.json();
                 })
                 .then(data => {
-                    if (data.status === 'success') {
-                        closeUploadModal();
-                    } else {
-                        alert('Ошибка при удалении записи');
-                    }
+                    if (data.status === 'success') closeUploadModal();
+                    else alert('Ошибка при удалении');
                 })
-                .catch(error => {
-                    console.error('Ошибка:', error);
-                    alert('Произошла ошибка при удалении записи.');
-                });
+                .catch(() => alert('Произошла ошибка'));
             }
         }
 
-        // Закрытие модального окна при клике вне его
+        // Закрытие по клику вне окна
         window.onclick = function(event) {
-            var modal = document.getElementById('uploadModal');
-            if (event.target == modal) {
-                closeUploadModal();
-            }
+            const modal = document.getElementById('uploadModal');
+            if (event.target == modal) closeUploadModal();
         }
     </script>
 
@@ -291,7 +320,6 @@
         .close:hover,
         .close:focus {
             color: black;
-            text-decoration: none;
             cursor: pointer;
         }
         .modal-buttons {
