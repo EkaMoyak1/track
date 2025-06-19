@@ -3,7 +3,7 @@ from flask import Flask, render_template, redirect, url_for, request, flash, jso
 from flask import session
 import json
 import pandas as pd
-
+import io
 
 
 import load_data, files
@@ -277,6 +277,7 @@ def add_data_entry(child_id):
         children = get_children(session['username'])  # Ваша функция для получения детей
 
         events = get_events()  # Ваша функция для получения конкурсов
+        print(events)
         return render_template('edit_field.html', child = child, children=children, events=events, docs=docs, id_child=child_id)
        # Обработка POST запроса здесь
     elif request.method == 'POST':
@@ -290,28 +291,36 @@ def upload_result():
     try:
         record_id = request.form.get('record_id')
         doc_type = request.form.get('doc_type')
-        file_name = request.form.get('saved_file_name')
-        if 'fileInput' not in request.files:
-            return jsonify({'success': False, 'message': 'Нет файла'}), 400
-        file = request.files['fileInput']
-        if file.filename == '':
-            return jsonify({'success': False, 'message': 'Файл не выбран'}), 400
-        original_name = file.filename
-        ext = original_name.split('.')[-1]
-        file_name += '.' + ext
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
+
+        # Проверяем, есть ли уже запись с таким ID
         conn = get_db_connection()
         cursor = conn.cursor()
+
+        # Если файл загружен
+        file_name = request.form.get('saved_file_name')
+        original_name = ''
+
+        if 'fileInput' in request.files and request.files['fileInput'].filename:
+            file = request.files['fileInput']
+            original_name = file.filename
+            ext = original_name.split('.')[-1]
+            file_name += '.' + ext
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
+
+        # Обновляем запись
         cursor.execute("""
             UPDATE data_table 
             SET result = ?, original_name = ?, file = ?
             WHERE id = ?
         """, (doc_type, original_name, file_name, record_id))
+
         if cursor.rowcount == 0:
             conn.close()
             return jsonify({'success': False, 'message': 'Запись не найдена'}), 404
+
         conn.commit()
         conn.close()
+
         return jsonify({'success': True, 'message': 'Файл загружен и запись обновлена'})
     except Exception as e:
         if 'conn' in locals():
@@ -342,6 +351,43 @@ def upload_file():
     # Сохраняем файл в папку load
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
     return   jsonify({'saved_file_name': file_name, 'file_name': file.filename}), 200
+
+
+@app.route('/remove_file/<int:record_id>', methods=['POST'])
+def remove_file(record_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Получаем текущую запись
+        cursor.execute("SELECT original_name, file FROM data_table WHERE id = ?", (record_id,))
+        record = cursor.fetchone()
+        if not record:
+            return jsonify({'success': False, 'message': 'Запись не найдена'}), 404
+
+        # Сохраняем имя файла, чтобы удалить его с диска
+        old_filename = record['file']
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], old_filename) if old_filename else None
+
+        # Обновляем запись: ставим NULL вместо ''
+        cursor.execute("""
+            UPDATE data_table 
+            SET result = '', original_name = NULL, file = NULL 
+            WHERE id = ?
+        """, (record_id,))
+        conn.commit()
+
+        # Удаляем файл с диска, если он был
+        if old_filename and os.path.exists(file_path):
+            os.remove(file_path)
+
+        conn.close()
+        return jsonify({'success': True, 'message': 'Файл удален из записи'})
+    except Exception as e:
+        if 'conn' in locals():
+            conn.rollback()
+            conn.close()
+        return jsonify({'success': False, 'message': f'Ошибка: {str(e)}'}), 500
 
 
 # запись в базу об участии в конкурсе
@@ -527,6 +573,130 @@ def otchet(period):
 
     file_name ='output.xlsx'
     return send_file(file_path, as_attachment=True, download_name=file_name)
+
+
+@app.route('/report_form')
+def report_form():
+    if session.get('username') != 'admin':
+        flash("Доступ запрещён", "error")
+        return redirect(url_for('index'))
+
+    # Получаем все доступные варианты фильтрации
+    conn = get_db_connection()
+    conn.row_factory = sqlite3.Row
+
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id, name FROM spr_studya")
+    studios = [dict(row) for row in cursor.fetchall()]
+
+    cursor.execute("SELECT id, name FROM spr_napravlenie")
+    directions = [dict(row) for row in cursor.fetchall()]
+
+    cursor.execute("SELECT id, FIO FROM teacher")
+    teachers = [dict(row) for row in cursor.fetchall()]
+
+    cursor.execute("SELECT id, name FROM event_type")
+    event_types = [dict(row) for row in cursor.fetchall()]
+
+    cursor.execute("SELECT DISTINCT year_1, year_2 FROM user_settings")
+    years = [f"{row['year_1']}–{row['year_2']}" for row in cursor.fetchall()]
+
+    conn.close()
+
+    return render_template(
+        'report_form.html',
+        studios=studios,
+        directions=directions,
+        teachers=teachers,
+        event_types=event_types,
+        years=years
+    )
+
+
+@app.route('/generate_report', methods=['POST'])
+def generate_report():
+    if session.get('username') != 'admin':
+        flash("Доступ запрещён", "error")
+        return redirect(url_for('index'))
+
+    # Получаем параметры из формы
+    year = request.form.get('year', '').strip()
+    studio_id = request.form.get('studio', '')
+    direction_id = request.form.get('direction', '')
+    teacher_id = request.form.get('teacher', '')
+    event_type_id = request.form.get('event_type', '')
+
+    # Парсим учебный год
+    year_1, year_2 = None, None
+    if year and '–' in year:
+        parts = year.split('–')
+        year_1, year_2 = parts[0], parts[1]
+
+    # SQL-запрос с фильтрами
+    query = """
+        SELECT 
+            s.fio AS 'Обучающийся',
+            s.date_bd AS 'Дата рождения',
+            n.name AS 'Направление',
+            st.name AS 'Студия',
+            t.FIO AS 'Педагог',
+            e.name AS 'Конкурс',
+            e.level AS 'Уровень конкурса',
+            et.name AS 'Тип конкурса',
+            dt.result AS 'Результат',
+            dt.date_otcheta AS 'Дата отчета'
+        FROM data_table dt
+        JOIN spisok s ON dt.id_spisok = s.id
+        JOIN spisok_in_studio si ON dt.id_spisok_in_studio = si.id
+        JOIN spr_studya st ON si.studio = st.id
+        JOIN spr_napravlenie n ON si.napravlenie = n.id
+        JOIN teacher t ON si.pedagog = t.id
+        JOIN events_table e ON dt.id_events_table = e.id
+        LEFT JOIN event_type et ON e.type_event_id = et.id
+        WHERE 1=1
+    """
+
+    params = []
+
+    if year_1 and year_2:
+        query += " AND strftime('%Y', date_otcheta) BETWEEN ? AND ?"
+        params.extend([year_1, year_2])
+
+    if studio_id:
+        query += " AND st.id = ?"
+        params.append(studio_id)
+
+    if direction_id:
+        query += " AND n.id = ?"
+        params.append(direction_id)
+
+    if teacher_id:
+        query += " AND t.id = ?"
+        params.append(teacher_id)
+
+    if event_type_id:
+        query += " AND et.id = ?"
+        params.append(event_type_id)
+
+    # Выполняем запрос
+    conn = get_db_connection()
+    df = pd.read_sql_query(query, conn, params=params)
+    conn.close()
+
+    # Сохраняем в Excel
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False, sheet_name='Отчет')
+
+    output.seek(0)
+
+    return send_file(
+        output,
+        download_name=f'report_{pd.Timestamp.now().strftime("%Y%m%d")}.xlsx',
+        as_attachment=True,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
 
 
 ## ------------- Базовые справочники  --------- ##

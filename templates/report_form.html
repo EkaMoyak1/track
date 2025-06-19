@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Форма отчета{% endblock %}
+{% block content %}
+<h2>Выберите параметры отчета</h2>
+
+<form action="{{ url_for('generate_report') }}" method="POST">
+    <div>
+        <label>Учебный год:</label>
+        <select name="year">
+            {% for year in years %}
+                <option value="{{ year }}">{{ year }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label>Студия:</label>
+        <select name="studio">
+            <option value="">Все</option>
+            {% for studio in studios %}
+                <option value="{{ studio.id }}">{{ studio.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label>Направление:</label>
+        <select name="direction">
+            <option value="">Все</option>
+            {% for direction in directions %}
+                <option value="{{ direction.id }}">{{ direction.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label>Педагог:</label>
+        <select name="teacher">
+            <option value="">Все</option>
+            {% for teacher in teachers %}
+                <option value="{{ teacher.id }}">{{ teacher.FIO }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label>Тип конкурса:</label>
+        <select name="event_type">
+            <option value="">Все</option>
+            {% for et in event_types %}
+                <option value="{{ et.id }}">{{ et.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button type="submit">Сформировать отчет</button>
+</form>
+{% endblock %}

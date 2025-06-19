@@ -53,25 +53,42 @@
                                  imgfield="li_img__6386951860020_l21" style="max-width:150px;" alt="">
                         </div>
                     </div>
-                    <div class="t1107__imgwrapper t-align_center" style="flex: 1; position: relative; display: flex; justify-content: center; align-items: center;">
-                        {% if record[9] is not none %}
-                            <a href="{{ url_for('static', filename='load/'+record[9]) }}" target="_blank">
-                                <img class="t1107__img t-margin_auto t-img"
-                                     src="{{ url_for('static', filename='img/Rectangle 3.png') }}"
-                                     imgfield="li_img__6386951860020_l1" style="max-width:250px;" alt="">
-                            </a>
+                    <div class="t1107__imgwrapper t-align_center"
+                         style="flex: 1; position: relative; display: flex; justify-content: center; align-items: center;">
+                        {% if record[9] is not none and record[9] != '' %}
+                        <a href="{{ url_for('static', filename='load/'+record[9]) }}" target="_blank">
+                            <img class="t1107__img t-margin_auto t-img"
+                                 src="{{ url_for('static', filename='img/Rectangle 3.png') }}"
+                                 imgfield="li_img__6386951860020_l1" style="max-width:250px;" alt="">
+                        </a>
                         {% else %}
-                            <a href="#">
-                                <img class="t1107__img t-margin_auto t-img"
-                                     src="{{ url_for('static', filename='img/Rectangle 3.png') }}"
-                                     imgfield="li_img__6386951860020_l1" style="max-width:250px;" alt="">
-                            </a>
+                        <a href="#">
+                            <img class="t1107__img t-margin_auto t-img"
+                                 src="{{ url_for('static', filename='img/Rectangle 3.png') }}"
+                                 imgfield="li_img__6386951860020_l1" style="max-width:250px;" alt="">
+                        </a>
                         {% endif %}
+
+                        <!-- Центрированный текст поверх изображения -->
                         <div class="t1107__textwrapper t-align_center"
-                             style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 70%; max-width: 200px; text-align: center;">
-                            <div class="t1107__uptitle t-uptitle t-uptitle_md" field="li_subtitle__6386951860020" style="font-size: 14px; color: white">
-                                <strong>{{ record[3] }}</strong>
-                            </div>
+                             style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%; max-width: 200px; text-align: center;">
+
+                            {% if record[9] is not none and record[9] != '' %}
+                            <a href="{{ url_for('static', filename='load/'+record[9]) }}" target="_blank"
+                               style="text-decoration: underline; color: #00ff99; font-weight: bold; display: block; text-align: center;">
+                                {{ record[3] }}
+                            </a>
+                            {% else %}
+                            <span style="color: white; font-size: 14px; display: block; text-align: center;">
+                <strong>
+                    {% if record[3] is not none %}
+                        {{ record[3] }}
+                    {% else %}
+                        &nbsp; <!-- Пустая строка -->
+                    {% endif %}
+                </strong>
+            </span>
+                            {% endif %}
                         </div>
                     </div>
 
