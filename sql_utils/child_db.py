@@ -1,5 +1,5 @@
 from .db_helpers import get_db_connection
-from flask import flash
+from .db_helpers import dict_from_row
 
 
 def get_child_by_id(child_id, join_studio=False):
@@ -20,8 +20,10 @@ def get_child_by_id(child_id, join_studio=False):
     cursor.execute(query, (child_id,))
     child = cursor.fetchone()
     conn.close()
-    return child
-
+    # return child
+    if child:
+        return dict_from_row(child)
+    return None
 
 # Сохраняем все алиасы для совместимости
 def get_child_in_spisok(child_id):
@@ -41,8 +43,10 @@ def get_child_in_studya_by_id(field_id):
     """, (field_id,))
     child = cursor.fetchone()
     conn.close()
-    return child
-
+    # return child
+    if child:
+        return dict_from_row(child)
+    return None
 
 # Дублирующая функция для совместимости
 def get_child_in_studya_by_id_copy(field_id):

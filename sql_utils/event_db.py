@@ -1,4 +1,4 @@
-from .db_helpers import get_db_connection
+from .db_helpers import get_db_connection, dict_from_row
 import sqlite3
 
 
@@ -8,7 +8,9 @@ def get_events_by_id(event_id):
     cursor.execute("SELECT * FROM events_table WHERE id = ?", (event_id,))
     event = cursor.fetchone()
     conn.close()
-    return event
+    if event:
+        return dict_from_row(event)
+    return None
 
 def get_events():
     conn = get_db_connection()
@@ -21,7 +23,7 @@ def get_events():
     """)
     events = cursor.fetchall()
     conn.close()
-    return [dict(event) for event in events]
+    return [dict_from_row(event) for event in events]
 
 
 # типы конкурсов
@@ -32,7 +34,7 @@ def get_event_types():
     cursor.execute("SELECT * FROM event_type")
     types = cursor.fetchall()
     conn.close()
-    return [dict(row) for row in types]
+    return [dict_from_row(row) for row in types]
 
 def get_event_type_by_id(event_type_id):
     conn = get_db_connection()
@@ -41,4 +43,7 @@ def get_event_type_by_id(event_type_id):
     cursor.execute("SELECT * FROM event_type WHERE id = ?", (event_type_id,))
     event_type = cursor.fetchone()
     conn.close()
-    return dict(event_type) if event_type else None
+
+    if event_type:
+        return dict_from_row(event_type)
+    return None

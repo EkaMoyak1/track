@@ -111,7 +111,7 @@ def spisok_in_event(event_id):
 
     return render_template(
         'spisok_event.html',
-        event_name=event[1],
+        event_name=event['name'],
         event_id=event_id,
         children=children,
         docs=docs)
@@ -277,7 +277,7 @@ def add_data_entry(child_id):
         children = get_children(session['username'])  # Ваша функция для получения детей
 
         events = get_events()  # Ваша функция для получения конкурсов
-        print(events)
+
         return render_template('edit_field.html', child = child, children=children, events=events, docs=docs, id_child=child_id)
        # Обработка POST запроса здесь
     elif request.method == 'POST':
@@ -690,6 +690,7 @@ def generate_report():
         df.to_excel(writer, index=False, sheet_name='Отчет')
 
     output.seek(0)
+    print(query)
 
     return send_file(
         output,
