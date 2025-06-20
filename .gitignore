@@ -21,4 +21,5 @@ tmp/
 
 
 /static/load
+date_source.db
 /.idea/
