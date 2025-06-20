@@ -4,13 +4,14 @@
 <h2>Выберите параметры отчета</h2>
 
 <form action="{{ url_for('generate_report') }}" method="POST">
+
     <div>
-        <label>Учебный год:</label>
-        <select name="year">
-            {% for year in years %}
-                <option value="{{ year }}">{{ year }}</option>
-            {% endfor %}
-        </select>
+        <label for="date_start">Дата С:</label>
+        <input type="date" id="date_start" name="date_start">
+    </div>
+    <div>
+        <label for="date_end">Дата По:</label>
+        <input type="date" id="date_end" name="date_end">
     </div>
 
     <div>
@@ -55,4 +56,35 @@
 
     <button type="submit">Сформировать отчет</button>
 </form>
+
+<script>
+
+    // Эти переменные приходят из Jinja
+    const year1 = {{ year1 }};
+    const year2 = {{ year2 }};
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const dateStartInput = document.getElementById("date_start");
+        const dateEndInput = document.getElementById("date_end");
+
+        if (!dateStartInput.value) {
+            dateStartInput.value = `${year1}-09-01`;
+        }
+
+        if (!dateEndInput.value) {
+            dateEndInput.value = `${year2}-08-31`;
+        }
+    });
+
+    document.getElementById("reportForm").addEventListener("submit", function(event) {
+        const dateStart = document.getElementById("date_start").value;
+        const dateEnd = document.getElementById("date_end").value;
+
+        // Проверяем, что обе даты заполнены
+        if (dateStart && dateEnd && dateStart > dateEnd) {
+            event.preventDefault(); // Останавливаем отправку формы
+            alert("Ошибка: Дата 'По' не может быть раньше даты 'С'");
+        }
+    });
+</script>
 {% endblock %}

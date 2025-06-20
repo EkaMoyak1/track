@@ -4,12 +4,13 @@ from flask import session
 import json
 import pandas as pd
 import io
-
-
 import load_data, files
 import os
-# from SQL import *
 from sql_utils import *
+import sqlite3
+from functools import wraps
+from datetime import datetime  # ✅ Правильный вариант
+import zipfile
 
 app = Flask(__name__)
 
@@ -266,25 +267,83 @@ def child_profile(child_id):
 UPLOAD_FOLDER = 'load'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# #Добавление записи об участии в мероприятии
+# @app.route('/add_data_entry/<int:child_id>', methods=['GET', 'POST'])
+# def add_data_entry(child_id):
+#     # child = get_child_by_id(child_id)  # Получаем информацию о ребенке по ID
+#     child = get_child_in_studya_by_id(child_id)
+#
+#     if request.method == 'GET':
+#         # Получите данные детей и конкурсов из БД
+#         children = get_children(session['username'])  # Ваша функция для получения детей
+#
+#         events = get_events()  # Ваша функция для получения конкурсов
+#
+#         return render_template('edit_field.html', child = child, children=children, events=events, docs=docs, id_child=child_id)
+#        # Обработка POST запроса здесь
+#     elif request.method == 'POST':
+#         # id_spisok = request.form['id_spisok']
+#         save_in_date_table(request)
+#         return redirect(url_for('child_profile', child_id = child_id))
+
+
 #Добавление записи об участии в мероприятии
-@app.route('/add_data_entry/<int:child_id>', methods=['GET', 'POST'])
+@app.route('/add_data_entry/<int:child_id>', methods=['GET'])
 def add_data_entry(child_id):
     # child = get_child_by_id(child_id)  # Получаем информацию о ребенке по ID
     child = get_child_in_studya_by_id(child_id)
 
-    if request.method == 'GET':
-        # Получите данные детей и конкурсов из БД
-        children = get_children(session['username'])  # Ваша функция для получения детей
 
-        events = get_events()  # Ваша функция для получения конкурсов
+    # Получите данные детей и конкурсов из БД
+    children = get_children(session['username'])  # Ваша функция для получения детей
 
-        return render_template('edit_field.html', child = child, children=children, events=events, docs=docs, id_child=child_id)
-       # Обработка POST запроса здесь
-    elif request.method == 'POST':
-        # id_spisok = request.form['id_spisok']
-        save_in_date_table(request)
-        return redirect(url_for('child_profile', child_id = child_id))
+    events = get_events()  # Ваша функция для получения конкурсов
 
+    return render_template('edit_field.html', child = child, children=children, events=events, docs=docs, id_child=child_id)
+   # Обработка POST запроса здесь
+
+
+
+@app.route('/save_data_ajax', methods=['POST'])
+def save_data_ajax():
+    try:
+        id_spisok = request.form.get('id_spisok')
+        field_id = request.form.get('field_id')
+        id_events_table = request.form.get('id_events_table')
+        doc_type = request.form.get('doc_type')
+        date_otcheta = request.form.get('date_otcheta')
+
+        file = request.files.get('fileInput')
+        saved_file_name = request.form.get('saved_file_name')
+
+        original_name = ''
+        full_file_name = ''
+
+        if file and file.filename:
+            original_name = file.filename
+            ext = original_name.rsplit('.', 1)[-1].lower() if '.' in original_name else 'bin'
+            full_file_name = f"{saved_file_name}.{ext}"
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], full_file_name))
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO data_table 
+            (id_spisok, id_spisok_in_studio, id_events_table, result, original_name, file, date_otcheta)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (id_spisok, field_id, id_events_table, doc_type, original_name, full_file_name, date_otcheta))
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({'success': True, 'message': 'Запись успешно добавлена'})
+
+    except Exception as e:
+        if 'conn' in locals():
+            conn.rollback()
+            conn.close()
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 @app.route('/upload_result', methods=['POST'])
 def upload_result():
@@ -592,6 +651,8 @@ def report_form():
         flash("Доступ запрещён", "error")
         return redirect(url_for('index'))
 
+    year_1, year_2 = get_user_year_settings(session.get('username'))
+
     # Получаем все доступные варианты фильтрации
     conn = get_db_connection()
     conn.row_factory = sqlite3.Row
@@ -621,9 +682,10 @@ def report_form():
         directions=directions,
         teachers=teachers,
         event_types=event_types,
-        years=years
+        year = years,
+        year1=year_1,
+        year2=year_2,
     )
-
 
 @app.route('/generate_report', methods=['POST'])
 def generate_report():
@@ -632,19 +694,51 @@ def generate_report():
         return redirect(url_for('index'))
 
     # Получаем параметры из формы
-    year = request.form.get('year', '').strip()
-    studio_id = request.form.get('studio', '')
-    direction_id = request.form.get('direction', '')
-    teacher_id = request.form.get('teacher', '')
-    event_type_id = request.form.get('event_type', '')
+    date_start = request.form.get('date_start', '').strip()
+    date_end = request.form.get('date_end', '').strip()
 
-    # Парсим учебный год
-    year_1, year_2 = None, None
-    if year and '–' in year:
-        parts = year.split('–')
-        year_1, year_2 = parts[0], parts[1]
+    studio_id = request.form.get('studio', '').strip()
+    direction_id = request.form.get('direction', '').strip()
+    teacher_id = request.form.get('teacher', '').strip()
+    event_type_id = request.form.get('event_type', '').strip()
 
-    # SQL-запрос с фильтрами
+    # Проверяем даты (если указаны)
+    if date_start and date_end and date_start > date_end:
+        flash("Ошибка: Дата 'По' не может быть раньше даты 'С'", "error")
+        return redirect(request.referrer or url_for('report_form'))
+
+    # Сохраняем фильтры в сессии, чтобы передать их в /view_report
+    session['report_filters'] = {
+        'date_start': date_start,
+        'date_end': date_end,
+        'studio': studio_id,
+        'direction': direction_id,
+        'teacher': teacher_id,
+        'event_type': event_type_id
+    }
+
+    # Редиректим на страницу просмотра данных
+    return redirect(url_for('view_report'))
+
+
+@app.route('/view_report')
+def view_report():
+    if session.get('username') != 'admin':
+        flash("Доступ запрещён", "error")
+        return redirect(url_for('index'))
+
+    # Получаем фильтры из сессии
+    filters = session.get('report_filters', {})
+    if not filters:
+        flash("Нет данных для отчета", "error")
+        return redirect(url_for('report_form'))
+
+    # Подключаемся к базе
+    conn = get_db_connection()
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    # Получаем данные по фильтрам
     query = """
         SELECT 
             s.fio AS 'Обучающийся',
@@ -656,7 +750,8 @@ def generate_report():
             e.level AS 'Уровень конкурса',
             et.name AS 'Тип конкурса',
             dt.result AS 'Результат',
-            dt.date_otcheta AS 'Дата отчета'
+            dt.date_otcheta AS 'Дата отчета',
+            dt.file AS 'Файл'
         FROM data_table dt
         JOIN spisok s ON dt.id_spisok = s.id
         JOIN spisok_in_studio si ON dt.id_spisok_in_studio = si.id
@@ -670,44 +765,116 @@ def generate_report():
 
     params = []
 
-    if year_1 and year_2:
-        query += " AND strftime('%Y', date_otcheta) BETWEEN ? AND ?"
-        params.extend([year_1, year_2])
+    # Фильтрация по датам
+    if filters.get('date_start') and filters.get('date_end'):
+        query += " AND dt.date_otcheta BETWEEN ? AND ?"
+        params.extend([filters['date_start'], filters['date_end']])
+    elif filters.get('date_start'):
+        query += " AND dt.date_otcheta >= ?"
+        params.append(filters['date_start'])
+    elif filters.get('date_end'):
+        query += " AND dt.date_otcheta <= ?"
+        params.append(filters['date_end'])
 
-    if studio_id:
+    # Остальные фильтры
+    if filters.get('studio'):
         query += " AND st.id = ?"
-        params.append(studio_id)
+        params.append(filters['studio'])
 
-    if direction_id:
+    if filters.get('direction'):
         query += " AND n.id = ?"
-        params.append(direction_id)
+        params.append(filters['direction'])
 
-    if teacher_id:
+    if filters.get('teacher'):
         query += " AND t.id = ?"
-        params.append(teacher_id)
+        params.append(filters['teacher'])
 
-    if event_type_id:
+    if filters.get('event_type'):
         query += " AND et.id = ?"
-        params.append(event_type_id)
+        params.append(filters['event_type'])
 
-    # Выполняем запрос
-    conn = get_db_connection()
-    df = pd.read_sql_query(query, conn, params=params)
+    cursor.execute(query, params)
+    rows = cursor.fetchall()
     conn.close()
 
-    # Сохраняем в Excel
+    # Преобразуем данные в список словарей
+    columns = [description[0] for description in cursor.description]
+    data = [dict_from_row(row) for row in rows]
+    session['report_data'] = data
+
+    # Передаем данные в шаблон
+    return render_template(
+        'universal_table.html',
+        columns=columns,
+        data=data,
+        studios=get_all_studios(),     # функция получения студий
+        directions=get_all_directions(),
+        teachers=get_all_teachers(),
+        event_types=get_all_event_types()
+    )
+
+
+@app.route('/export_to_excel')
+def export_to_excel():
+    if session.get('username') != 'admin':
+        flash("Доступ запрещён", "error")
+        return redirect(url_for('index'))
+
+    data = session.get('report_data', [])
+    if not data:
+        flash("Нет данных для экспорта", "error")
+        return redirect(url_for('view_report'))
+
+    df = pd.DataFrame(data)
+
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
         df.to_excel(writer, index=False, sheet_name='Отчет')
 
     output.seek(0)
-    print(query)
+    filename = f'report_{datetime.now().strftime("%Y%m%d")}.xlsx'
 
     return send_file(
         output,
-        download_name=f'report_{pd.Timestamp.now().strftime("%Y%m%d")}.xlsx',
+        download_name=filename,
         as_attachment=True,
         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
+
+@app.route('/download_files_from_report')
+def download_files_from_report():
+    if session.get('username') != 'admin':
+        flash("Доступ запрещён", "error")
+        return redirect(url_for('index'))
+
+    data = session.get('report_data', [])
+    if not data:
+        flash("Нет файлов для скачивания", "error")
+        return redirect(url_for('view_report'))
+
+    files = [row['Файл'] for row in data if row.get('Файл')]
+
+    if not files:
+        flash("Нет прикрепленных файлов", "info")
+        return redirect(url_for('view_report'))
+
+    # Для нескольких файлов — создаём ZIP
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+        for filename in files:
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            if os.path.exists(file_path):
+                zip_file.write(file_path, filename)
+
+    zip_buffer.seek(0)
+    zip_filename = f'report_files_{datetime.now().strftime("%Y%m%d")}.zip'
+
+    return send_file(
+        zip_buffer,
+        download_name=zip_filename,
+        as_attachment=True,
+        mimetype='application/zip'
     )
 
 
@@ -958,8 +1125,48 @@ def set_year_form():
     return render_template('set_year.html')
 
 
+@app.route('/delete_file', methods=['POST'])
+def delete_file():
+    record_id = request.form.get('record_id')
+    if not record_id:
+        return jsonify({'success': False, 'message': 'Не указан ID записи'}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Получаем текущую запись
+        cursor.execute("SELECT file FROM data_table WHERE id = ?", (record_id,))
+        record = cursor.fetchone()
+        if not record:
+            return jsonify({'success': False, 'message': 'Запись не найдена'})
+
+        old_file_name = record['file']
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], old_file_name)
+
+        # Удаляем файл с диска
+        if old_file_name and os.path.exists(file_path):
+            os.remove(file_path)
+
+        # Очищаем поля в БД
+        cursor.execute("""
+            UPDATE data_table 
+            SET file = NULL, original_name = NULL 
+            WHERE id = ?
+        """, (record_id,))
+
+        conn.commit()
+        return jsonify({'success': True})
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+    finally:
+        conn.close()
+
 UPLOAD_FOLDER = 'static/load/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
 
 
 if __name__ == '__main__':

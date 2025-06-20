@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Отчет{% endblock %}
+{% block content %}
+
+<h2>Результаты по вашему запросу</h2>
+
+<!-- Кнопки действий -->
+<div style="margin-bottom: 10px;">
+    <a href="{{ url_for('export_to_excel') }}" class="btn">📥 Выгрузить в Excel</a>
+    <a href="{{ url_for('download_files_from_report') }}" class="btn">📦 Скачать файлы</a>
+</div>
+
+<!-- Таблица с данными -->
+<table border="1" class="dataframe">
+    <thead>
+        <tr>
+            {% for col in columns %}
+                <th>{{ col }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in data %}
+            <tr>
+                {% for col in columns %}
+                    <td>{{ row[col] }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

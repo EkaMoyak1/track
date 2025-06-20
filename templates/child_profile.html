@@ -221,10 +221,32 @@
 
         // Удаление файла
         function removeFile() {
-            document.getElementById('fileInput').value = '';
-            document.getElementById('saved_file_name').value = '';
-            document.getElementById('file-name-display').textContent = '';
-            document.getElementById('remove-file-btn').style.display = 'none';
+            const recordId = document.getElementById('record_id').value;
+            const confirmDelete = confirm("Вы действительно хотите удалить файл?");
+
+            if (!confirmDelete || !recordId) return;
+
+            // Отправляем запрос на сервер
+            fetch("{{ url_for('delete_file') }}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `record_id=${recordId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Файл удален из БД и с сервера");
+                    document.getElementById('fileInput').value = '';
+                    document.getElementById('saved_file_name').value = '';
+                    document.getElementById('file-name-display').textContent = '';
+                    document.getElementById('remove-file-btn').style.display = 'none';
+                } else {
+                    alert(data.message || 'Ошибка при удалении файла');
+                }
+            })
+            .catch(err => {
+                alert("Ошибка сети: " + err.message);
+            });
         }
 
         // Отправка формы

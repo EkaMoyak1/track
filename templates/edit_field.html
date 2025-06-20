@@ -1,20 +1,13 @@
-<!--  Добавление участия  -->
-
 {% extends 'base.html' %}
-
-{% block title %}Путь к успеху{% endblock %}
-
+{% block title %}Добавить запись об участии в конкурсе{% endblock %}
 {% block content %}
 
-    <span class="close">&times;</span>
+    <span class="close" onclick="this.parentElement.style.display='none';">&times;</span>
     <h1>Добавить запись об участии в конкурсе</h1>
-    <form  id="uploadForm" action="{{ url_for('add_data_entry',  child_id=child['id_table']) }}" method="post" enctype="multipart/form-data">
 
-        <label for="fio">ФИО:</label>
-            <input type="hidden" name="field_id" id="field_id" value="{{ child['id_table'] }}" readonly>
-            <input type="hidden" type="text" id="fio" name="id_spisok" value="{{ child['id'] }}" readonly>
-            <span>{{ child[1] }}</span>
-        <br><br>
+    <form id="uploadForm" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="id_spisok" value="{{ child.id }}">
+        <input type="hidden" name="field_id" value="{{ child.id_table }}">
 
         <label for="competition">Конкурс:</label>
         <select name="id_events_table" id="competition" required>
@@ -25,59 +18,122 @@
         <br><br>
 
         <label for="doc_type">Результат:</label>
-<!--        <input type="text" name="result" id="result" >-->
-            <select name="doc_type" id="doc_type" >
-                {% for doc_t in docs %}
-                    <option value="{{ doc_t }}">{{ doc_t }}</option>
-                {% endfor %}
-            </select>
+        <select name="doc_type" id="doc_type" required>
+            {% for doc_t in docs %}
+                <option value="{{ doc_t }}">{{ doc_t }}</option>
+            {% endfor %}
+        </select>
         <br><br>
 
         <label for="fileInput">Файл:</label>
-        <input type="file" name="fileInput" id="fileInput" accept=".txt,.pdf,.doc,.docx">
+        <input type="file" name="fileInput" id="fileInput" accept=".txt,.pdf,.doc,.docx,.jpg,.png">
         <input type="hidden" name="saved_file_name" id="saved_file_name">
-        <div id="progress">
-            <div id="progress-bar"></div>
+        <div id="file-name-display" style="display: inline-block;"></div>
+        <button id="remove-file-btn" type="button" onclick="removeFile()" style="display: none; margin-left: 10px;">✖</button>
+        <br><br>
+
+        <label for="date_otcheta">Дата включения в отчет:</label>
+        <input type="date" id="date_otcheta" name="date_otcheta">
+        <br><br>
+
+        <div id="progress" style="display: none;">
+            <div id="progress-bar" style="width: 0%; height: 20px; background-color: #4CAF50;"></div>
         </div>
         <div id="message"></div>
         <br><br>
 
-        <label for="date_otcheta">Дата включения в отчет:</label>
-        <input type="date" id="date_otcheta" name="date_otcheta" ><br>
-
-        <input type="submit" value="Добавить запись">
-        <button type="button" class="cancel-button" onclick="history.back();">Отмена</button> <!-- Кнопка Отмена -->
+        <input type="submit" value="Добавить запись" onclick="submitUploadForm(event)">
+        <button type="button" class="cancel-button" onclick="history.back();">Отмена</button>
     </form>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-    $("#fileInput").on("change", function() {
-        // Получаем выбранный файл
-        var file = this.files[0];
-        if (!file) return;
-
         // Генерация уникального имени файла только после выбора
-        var uniqueFileName = 'file_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
-        document.getElementById('saved_file_name').value = uniqueFileName;
-    });
+        $("#fileInput").on("change", function () {
+            var file = this.files[0];
+            if (!file) {
+                document.getElementById('saved_file_name').value = '';
+                document.getElementById('file-name-display').textContent = '';
+                document.getElementById('remove-file-btn').style.display = 'none';
+                return;
+            }
 
-    // === НОВЫЙ КОД: ОБРАБОТЧИК ФОРМЫ ===
-    $("#uploadForm").on("submit", function(e) {
-        e.preventDefault(); // ⚠️ ОСТАНОВИЛИ СТАНДАРТНУЮ ОТПРАВКУ
+            var uniqueFileName = 'file_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+            document.getElementById('saved_file_name').value = uniqueFileName;
 
-        const docType = $("#doc_type").val();
-        const dateOtcheta = $("#date_otcheta").val();
+            document.getElementById('file-name-display').textContent = "Выбранный файл: " + file.name;
+            document.getElementById('remove-file-btn').style.display = 'inline-block';
+        });
 
-        // Если указан результат — дата обязательна
-        if (docType && docType !== ' ') {
-            if (!dateOtcheta) {
+        // Удаление файла из формы
+        function removeFile() {
+            document.getElementById('fileInput').value = '';
+            document.getElementById('saved_file_name').value = '';
+            document.getElementById('file-name-display').textContent = '';
+            document.getElementById('remove-file-btn').style.display = 'none';
+        }
+
+        // Отправка формы через AJAX
+        function submitUploadForm(e) {
+            e.preventDefault();
+
+            const form = document.getElementById('uploadForm');
+            const formData = new FormData(form);
+
+            const docType = formData.get("doc_type");
+            const dateOtcheta = formData.get("date_otcheta");
+
+            // Если указан результат — дата обязательна
+            if (docType && !dateOtcheta) {
                 alert("Дата отчета обязательна, если указан результат");
                 return;
             }
-        }
 
-        // Отправляем форму через JS
-        this.submit(); // ✔️ Теперь отправляем программно
-    });
-</script>
+            const progressBar = document.getElementById('progress-bar');
+
+            // Показываем прогресс-бар, если файл выбран
+            if (formData.get("fileInput")) {
+                document.getElementById('progress').style.display = 'block';
+                progressBar.style.width = '0%';
+            }
+
+            fetch("{{ url_for('save_data_ajax') }}", {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Ошибка сети');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('message').textContent = 'Запись успешно добавлена!';
+                    setTimeout(() => {
+                        window.location.href = "{{ url_for('child_profile', child_id=child['id_table']) }}";
+                    }, 1000);
+                } else {
+                    document.getElementById('message').textContent = 'Ошибка: ' + data.message;
+                }
+            })
+            .catch(error => {
+                document.getElementById('message').textContent = 'Ошибка при загрузке: ' + error.message;
+            });
+        }
+    </script>
+
+    <style>
+        #progress {
+            margin-top: 10px;
+            width: 100%;
+            background-color: #f3f3f3;
+            border: 1px solid #ccc;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 20px;
+            background-color: #4CAF50;
+            transition: width 0.3s;
+        }
+    </style>
 
 {% endblock %}
